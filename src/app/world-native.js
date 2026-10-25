@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { KTX2Loader } from "three/addons/loaders/KTX2Loader.js";
 import { VISUAL_PRESETS } from "../core/hunter.mjs";
 import { stickToWorld } from "./movement-axis.mjs";
 import { createNativeWocTerrain } from "./woc-native-layer.mjs";
@@ -164,7 +165,13 @@ export async function bootWorld(canvas,hunter,{onState,onNotice,onZone}={}){
   const previous=hunter.worldVersion==="woc0447"&&Number.isFinite(hunter.position?.x)&&Number.isFinite(hunter.position?.z)
     ? hunter.position : nativeHunterEntryPoint();
   const position={x:previous.x,z:previous.z};
-  const loader=new GLTFLoader();
+  // The authentic WOC/KayKit Hexagon GLBs include KHR_texture_basisu/KTX2.
+  // GLTFLoader without a transcoder silently fails every town/foliage asset.
+  // Reuse the BASIS transcoder shipped with our pinned Three.js dependency.
+  const ktx2=new KTX2Loader()
+    .setTranscoderPath(import.meta.env.BASE_URL+"assets/basis/")
+    .detectSupport(renderer);
+  const loader=new GLTFLoader().setKTX2Loader(ktx2);
   onNotice?.("Preparando terreno original WOC v0.44.7");
   const native=createNativeWocTerrain(scene,{seed:SEED,start:position,
     onProgress(p){if(p.done===p.total||p.done%6===0)onNotice?.("Terreno "+p.zone+" "+p.done+"/"+p.total);}});
@@ -275,7 +282,7 @@ export async function bootWorld(canvas,hunter,{onState,onNotice,onZone}={}){
       if(!live)return;live=false;cancelAnimationFrame(raf);
       onState?.({...position});native.dispose();
       window.removeEventListener("resize",resize);
-      renderer.dispose();
+      ktx2.dispose();renderer.dispose();
       scene.traverse(o=>{o.geometry?.dispose?.();const m=o.material;
         if(Array.isArray(m))m.forEach(x=>x.dispose?.());else m?.dispose?.();});
     }
