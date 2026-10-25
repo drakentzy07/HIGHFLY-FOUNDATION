@@ -3,6 +3,7 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { VISUAL_PRESETS } from "../core/hunter.mjs";
 import { stickToWorld } from "./movement-axis.mjs";
 import { createNativeWocTerrain } from "./woc-native-layer.mjs";
+import { initGfxTier } from "../../.vendor/world-of-claudecraft/src/render/gfx.ts";
 import { nativeWorldHeight,nativeWorldStart,nativeWaterLevelAt } from "./native-woc-source.mjs";
 import {nativeBuildingsNear,nativeWellsNear,nativeNpcsNear,nativeCampsNear,
   nativeRoadSegmentsNear,nativeBuildingCollision,nativeZoneLabel} from "./woc-authored-content.mjs";
@@ -146,6 +147,7 @@ export async function bootWorld(canvas,hunter,{onState,onNotice,onZone}={}){
   const renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:"high-performance"});
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.4));
   renderer.shadowMap.enabled=false;renderer.outputColorSpace=THREE.SRGBColorSpace;
+  initGfxTier(renderer); // WOC requires active device-specific tier before terrain construction.
   const scene=new THREE.Scene();scene.background=new THREE.Color("#abcbd2");
   scene.fog=new THREE.Fog("#b5c9bd",65,155);
   scene.add(new THREE.HemisphereLight("#e4f7f2","#536d46",2.15));
@@ -236,6 +238,11 @@ export async function bootWorld(canvas,hunter,{onState,onNotice,onZone}={}){
     native.update(position,130);
     const nextZone=nativeZoneLabel(position);
     if(zoneId!==nextZone){zoneId=nextZone;onZone?.(nextZone);}
+    // Stream authentic WOC terrain chunks as the player crosses zone borders.
+    if(lastStreamZone!==nextZone){
+      lastStreamZone=nextZone;
+      native.ensureAt({...position}).catch(e=>onNotice?.("Carga de región fallida: "+e.message));
+    }
     saveTimer+=dt;
     if(saveTimer>3){saveTimer=0;onState?.({...position});}
     renderer.render(scene,camera);
