@@ -1,0 +1,10 @@
+# HIGHFLY: never commit private WOC source checkouts, caches, APKs or restricted media.
+.highfly-local/
+node_modules/
+dist/
+*.apk
+*.aab
+*.keystore
+*.jks
+f5-pages-plan/
+f5-audit-metadata/
