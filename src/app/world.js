@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { VISUAL_PRESETS } from "../core/hunter.mjs";
+import { stickToWorld } from "./movement-axis.mjs";
 
 // F3 ENTRY SMOKE TEST ONLY. This is an ORIGINAL temporary 3D zone;
 // it is deliberately NOT represented as the copyrighted/filtered WOC 0.44.7 world.
@@ -140,16 +141,10 @@ export async function bootWorld(canvas,hunter,{onState,onNotice}={}){
     if(!live)return;
     loop=requestAnimationFrame(frame);
     const dt=Math.min(clock.getDelta(),.045);
-    const forward=-joy.y,right=joy.x;
-    const length=Math.hypot(forward,right),magnitude=Math.min(length,1);
-    let dx=0,dz=0;
-    if(magnitude>.06){
-      const f=forward/length,r=right/length;
-      dx=(r*Math.cos(yaw)+f*Math.sin(yaw))*magnitude;
-      dz=(f*Math.cos(yaw)-r*Math.sin(yaw))*magnitude;
-      dynamic.rotation.y=Math.atan2(dx,dz);
-    }
-    const moving=magnitude>.06;
+    const direction=stickToWorld({x:joy.x,y:joy.y,yaw});
+    const dx=direction.x,dz=direction.z;
+    const moving=direction.magnitude>.06;
+    if(moving)dynamic.rotation.y=Math.atan2(dx,dz);
     const speed=dashTime>0?18:5.7;
     if(moving){
       const nx=clamp(position.x+dx*speed*dt,-77,77);
