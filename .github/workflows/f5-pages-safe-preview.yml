@@ -1,10 +1,12 @@
-name: F5 Pages legal-world preview gate (no deploy until QA)
+name: F5 Pages legal-world preview (QA-gated public deploy)
 on:
   push:
     branches: [experiment/f5-pages-safe-preview]
   workflow_dispatch:
 permissions:
   contents: read
+  pages: write
+  id-token: write
 jobs:
   f5-safe-preview:
     runs-on: ubuntu-latest
@@ -79,6 +81,45 @@ jobs:
           curl -fsSL http://127.0.0.1:8765/HIGHFLY-FOUNDATION/f5/editor.html -o /tmp/highfly-f5-editor
           grep -qi '<html' /tmp/highfly-f5-editor
           echo F5_PAGES_LICENCED_SUBSET_BROWSER_GREEN
+      - name: Checkout existing stable HIGHFLY F4 from main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: stable-f4
+      - name: Rebuild the preserved HIGHFLY F4 homepage
+        shell: bash
+        working-directory: stable-f4
+        run: |
+          set -euo pipefail
+          npm install --no-audit --no-fund
+          ref='672074b73ba276876a19e8816ecdc5241817ab47'
+          base="https://raw.githubusercontent.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0/$ref/addons/kaykit_character_pack_adventures"
+          mkdir -p public/assets/kaykit
+          for glb in Knight Mage Rogue; do curl -fL --retry 3 "$base/Characters/gltf/$glb.glb" -o "public/assets/kaykit/$glb.glb"; done
+          curl -fL --retry 3 "$base/LICENSE.txt" -o public/assets/kaykit/LICENSE.txt
+          test "$(git hash-object public/assets/kaykit/Knight.glb)" = '717b56ca2b5ff5392679774725201ba03a3eefab'
+          test "$(git hash-object public/assets/kaykit/Mage.glb)" = 'c89f19f6e707f6e07e4632a08876bd6d0172b082'
+          test "$(git hash-object public/assets/kaykit/Rogue.glb)" = 'c8827661105eef7b2bfbef3bc676d41a47625733'
+          npm run build:app
+      - name: Assemble one Pages site with F4 at root and F5 at /f5/
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p pages-combined/f5
+          cp -a stable-f4/dist/. pages-combined/
+          cp -a f5-public-review/. pages-combined/f5/
+          test -s pages-combined/index.html
+          test -s pages-combined/assets/kaykit/Knight.glb
+          test -s pages-combined/f5/index.html
+          test -s pages-combined/f5/HIGHFLY_F5_RELEASE_SCOPE.json
+          bytes=$(du -sb pages-combined | awk '{print $1}')
+          echo "F5_PAGES_COMBINED_BYTES=$bytes"
+          test "$bytes" -lt 1073741824
+          echo F5_PAGES_BOTH_VERSIONS_STAGED
+      - name: Upload QA-verified Pages site (not raw WOC assets)
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: pages-combined
       - name: Report metadata only, never upload build before review
         if: always()
         uses: actions/upload-artifact@v4
@@ -87,3 +128,30 @@ jobs:
           path: f5-public-review/HIGHFLY_F5_RELEASE_SCOPE.json
           if-no-files-found: ignore
           retention-days: 7
+
+  deploy-f5:
+    if: github.ref == 'refs/heads/experiment/f5-pages-safe-preview'
+    needs: f5-safe-preview
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@v5
+      - name: Deploy tested F4 root plus F5 legal subset
+        id: deployment
+        uses: actions/deploy-pages@v4
+      - name: Verify live F4 root + F5 online page
+        shell: bash
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          set -euo pipefail
+          for try in $(seq 1 12); do
+            if curl -fsSL --max-time 20 "$PAGE_URL" -o /tmp/f4-home &&
+               curl -fsSL --max-time 20 "${PAGE_URL}f5/" -o /tmp/f5-home; then break; fi
+            sleep 5
+          done
+          grep -qi 'HIGHFLY' /tmp/f4-home
+          grep -q 'HIGHFLY' /tmp/f5-home
+          echo F5_PAGES_PUBLIC_F4_AND_F5_ONLINE
