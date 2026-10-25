@@ -73,6 +73,10 @@ jobs:
           curl -fsSL --retry 4 "$base/props/well.glb" -o public/assets/woc-cc0/well.glb
           curl -fsSL --retry 4 "$base/props/blacksmith.glb" -o public/assets/woc-cc0/blacksmith.glb
           curl -fsSL --retry 4 "$base/creatures/wolf.glb" -o public/assets/woc-cc0/wolf.glb
+          curl -fsSL --retry 4 "$base/foliage/pine_1.glb" -o public/assets/woc-cc0/pine_1.glb
+          curl -fsSL --retry 4 "$base/foliage/oak_1.glb" -o public/assets/woc-cc0/oak_1.glb
+          curl -fsSL --retry 4 "$base/foliage/twisted_1.glb" -o public/assets/woc-cc0/twisted_1.glb
+          curl -fsSL --retry 4 "$base/foliage/rock_1.glb" -o public/assets/woc-cc0/rock_1.glb
           test "$(git hash-object public/assets/woc-cc0/house_1.glb)" = '88f7b20a2b4376a53c6e9444910386b1a8a5f510'
           test "$(git hash-object public/assets/woc-cc0/house_2.glb)" = 'fb45ec1b03e81dc37e133569e91a666e79d4470b'
           test "$(git hash-object public/assets/woc-cc0/house_3.glb)" = '5cece5805e034c57a1581645e8ddf1f2962ee269'
@@ -80,6 +84,10 @@ jobs:
           test "$(git hash-object public/assets/woc-cc0/well.glb)" = 'a80bb7f20e048621195e300e58a0aebbcc83af66'
           test "$(git hash-object public/assets/woc-cc0/blacksmith.glb)" = 'a654d0fb8cdaeca95e45a4a97086b0e072374a34'
           test "$(git hash-object public/assets/woc-cc0/wolf.glb)" = '00d69a6c127752c2506c66bc93db9a10f4a73df0'
+          test "$(git hash-object public/assets/woc-cc0/pine_1.glb)" = '43e0328735bcca037ac87f32c11a9b9b52cb11fa'
+          test "$(git hash-object public/assets/woc-cc0/oak_1.glb)" = 'decbef02a1a2a5904232b60b1fae8e5c2fd1e5d3'
+          test "$(git hash-object public/assets/woc-cc0/twisted_1.glb)" = 'f649826c05d7de2cf307917c073c3ed952fcc093'
+          test "$(git hash-object public/assets/woc-cc0/rock_1.glb)" = '9a89d0ed1ddaadda62938c487c3279999c370c58'
           cp .vendor/world-of-claudecraft/CREDITS.md public/assets/woc-cc0/WOC-CREDITS.md
           echo 'ONLY pinned CC0 world assets verified by Git blob SHA.'
       - name: Build browser entry
