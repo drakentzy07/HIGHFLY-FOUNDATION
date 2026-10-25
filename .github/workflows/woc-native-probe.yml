@@ -32,3 +32,13 @@ jobs:
       - run: npm test
       - name: Bundle WOC native world module in a separate probe
         run: npm run build:app
+      - name: Audit approved KayKit head/face mesh capability
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://raw.githubusercontent.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0/672074b73ba276876a19e8816ecdc5241817ab47/addons/kaykit_character_pack_adventures/Characters/gltf'
+          mkdir -p /tmp/highfly-glb
+          for model in Knight Mage Rogue; do
+            curl -fsSL --retry 3 "$base/$model.glb" -o "/tmp/highfly-glb/$model.glb"
+            node scripts/audit-kaykit-glb.mjs "/tmp/highfly-glb/$model.glb"
+          done
