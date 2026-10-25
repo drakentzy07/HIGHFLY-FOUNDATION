@@ -46,6 +46,7 @@ async function enter(hunter){
     });
     node("loading").hidden=true;
     current.worldVersion="woc0447";current.position=game.getPosition();save();
+    window.__highflyWorldSmoke=game.getWorldSummary();
     if(!game.loadedKayKit)note("Aviso: modelo 3D KayKit no cargado; verificá los assets del despliegue.");
   }catch(err){
     node("loading").hidden=true;
