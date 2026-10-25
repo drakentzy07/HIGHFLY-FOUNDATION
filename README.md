@@ -1,23 +1,39 @@
 # HIGHFLY FOUNDATION
 
-**Estado: F2 — núcleo Hunter universal + FURY de gestos + puente de lectura World of ClaudeCraft 0.44.7.**
+**F3: ingreso a la app y primera zona 3D con Hunter universal KayKit.** Proyecto público para probar desde Android en horizontal.
 
-Objetivo: RPG isekai de mundo abierto, pensado para Android horizontal, con un solo personaje que aprende habilidades y utiliza armas sin clases ni especializaciones. **KayKit** es la base visual seleccionada y autorizada.
+## Flujo disponible en la primera build web
 
-## Código implementado
-- **Hunter sin clases:** estadísticas, entrenamiento, progresión, equipo, cuatro habilidades propias de prototipo y combo ATK 1-2-3-4 (`src/core/hunter.mjs`).
-- **Gestos FURY:** joystick relativo a cámara, apuntado con arrastrar/soltar/cancelar, intención de dash y doble salto (`src/core/fury-input.mjs`).
-- **Puente 0.44.7:** lectura de la lista de enemigos y conversión de coordenadas al sistema de apuntado del Hunter (`src/bridge/world0447.mjs`).
-- **Guardado:** validación y recuperación de la estructura del personaje, con almacenamiento inyectable (`src/core/hunter-save.mjs`).
-- **Pruebas automáticas:** `npm test` (21 pruebas de lógica), `npm run demo`.
+Inicio HIGHFLY → Creador de Hunter **sin clases** → Entrar a la zona de integración 3D → joystick/cámara/salto/dash → guardar y continuar.
 
-## Límites verificados
-Los resultados son **pruebas de lógica**, no del videojuego completo. Aún NO se han importado la simulación de ClaudeCraft, los archivos GLB KayKit ni un motor de física/animación FURY funcional. Las intenciones de combate no aplican daño autoritativo al mundo. No hay build Pages ni Android jugable que podamos certificar.
+- Cuerpo visual KayKit CC0 (Knight/Mage/Rogue, descarga oficial en compilación, SHA Git blob verificado).
+- Las apariencias son puramente cosméticas y no restringen armas o habilidades.
+- Tres.js `0.185.1` y Vite `8.0.16`, mismos números que los de World of ClaudeCraft `v0.44.7`.
+- Guardado mediante almacenamiento local y recuperación del mismo Hunter.
+- Tests automáticos: `npm test`; build navegador: `npm run build:app`.
 
-## Seguimiento
-- [F0 — base y licencia](docs/FOUNDATION-F0.md)
-- [F1 — personaje KayKit universal](docs/KAYKIT-CHARACTER-F1.md)
-- [F2 — puente y limitaciones](docs/F2-STATUS.md)
-- [Recursos permitidos y aprobaciones](docs/ASSET-APPROVALS.md)
+## ATENCIÓN: estado de la zona
 
-Todo nuevo recurso externo requiere aprobación previa del propietario antes de incorporarlo al repositorio público. Las referencias ya aprobadas son ClaudeCraft **0.44.7** (código MIT, con filtrado de assets) y **KayKit** (packs CC0 originales).
+**Es un escenario de integración TEMPORAL, desarrollado para verificar arranque, animación KayKit, interfaz y controles Android. NO es el mapa original de ClaudeCraft 0.44.7.** El motor completo, poblaciones, edificios con interiores y físicas FURY aún no se han incorporado. No se ha probado en un Samsung S23 Ultra.
+
+La prioridad después de comprobar el ingreso es sustituir el escenario provisional por el mundo real de WOC 0.44.7, utilizando SOLO código MIT y assets permitidos (auditoría de licencias primero). Las cuatro habilidades de combate continúan planificadas; no impiden entrar al mundo.
+
+## Desarrollo local
+
+```bash
+npm install
+npm test
+npm run dev
+```
+
+El desarrollo local **no descarga automáticamente los GLB KayKit**: el workflow de Pages los baja desde la fuente CC0 aprobada. Por eso, sin esos archivos locales, el motor muestra una figura de respaldo y no se debe calificar esa prueba como validación del modelo KayKit.
+
+## Referencias y auditoría
+
+- [F3: instrucciones, licencias y lista de comprobación](docs/F3-ENTRY-WORLD.md)
+- [F2: puente de Hunter con API WOC 0.44.7](docs/F2-STATUS.md)
+- [F1: personaje KayKit universal](docs/KAYKIT-CHARACTER-F1.md)
+- [F0: decisiones fundacionales](docs/FOUNDATION-F0.md)
+- [Licencias y autorizaciones](docs/ASSET-APPROVALS.md)
+
+Regla fija: antes de importar cualquier otro repositorio, modelo, versión o pack, consultar al propietario.
