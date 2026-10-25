@@ -94,6 +94,18 @@ jobs:
           test -s /tmp/hf5editor
           grep -Rlq 'highfly-f5-hud' upstream/world-of-claudecraft/dist/assets
           echo 'F5_HTTP_SMOKE_GREEN_WORLD_EDITOR_NATIVE_HUD'
+      - name: Verify local-only Android identity and OTA shutdown (never builds/uploads APK)
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/f5-android-private-config.mjs upstream/world-of-claudecraft
+          grep -qF "appId: 'com.highfly.f5local'" upstream/world-of-claudecraft/capacitor.config.ts
+          grep -qF "appName: 'HIGHFLY F5 LOCAL'" upstream/world-of-claudecraft/capacitor.config.ts
+          grep -qF 'autoUpdate: false' upstream/world-of-claudecraft/capacitor.config.ts
+          grep -qF 'applicationId "com.highfly.f5local"' upstream/world-of-claudecraft/android/app/build.gradle
+          node scripts/f5-android-private-config.mjs upstream/world-of-claudecraft
+          echo 'F5_ANDROID_PRIVATE_CONFIG_SMOKE_GREEN'
+
       - name: Verify local launcher, editor and original world compiled
         shell: bash
         run: |
