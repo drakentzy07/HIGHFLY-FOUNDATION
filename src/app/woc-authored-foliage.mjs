@@ -31,7 +31,7 @@ export async function renderAuthenticFoliage({scene,loader,start,seed=42,notice}
     // WOC foliage's original low-tier species (pine_1, oak_1, twisted_1,
     // rock_1), original scatter position + decoration scale.
     const baseScale=d.asset==="pine_1.glb"?1.1:d.asset==="oak_1.glb"?1.15:
-      d.asset==="twisted_1.glb"?.5:1;
+      d.asset==="twisted_1.glb" ? 0.5 : 1;
     m.scale.setScalar(d.scale*baseScale);
     m.position.set(d.x-box.getCenter(new THREE.Vector3()).x*d.scale*baseScale,
       d.y-box.min.y*d.scale*baseScale-.05,
