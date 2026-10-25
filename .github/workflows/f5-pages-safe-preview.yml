@@ -142,7 +142,7 @@ jobs:
     needs: f5-safe-preview
     runs-on: ubuntu-latest
     environment:
-      name: github-pages
+      name: highfly-f5-preview
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/configure-pages@v5
