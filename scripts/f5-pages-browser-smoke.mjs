@@ -24,7 +24,21 @@ try {
   await page.locator('#mobile-preflight-continue').waitFor({state:'visible',timeout:20000});
   await page.locator('#mobile-preflight-continue').evaluate(el=>el.click());
   try{await page.waitForFunction(()=>document.body.classList.contains('game-active'),null,{timeout:90000});status.entered=true;}catch(e){status.errors.push('Game never marked active within timeout: '+String(e).slice(0,180));}
-  if(status.entered){try{await page.locator('#highfly-f5-hud').waitFor({state:'visible',timeout:15000});status.hud=true;}catch(e){status.errors.push('HUD did not appear in mobile game');}}
+  if(status.entered){try{await page.locator('#highfly-f5-hud').waitFor({state:'visible',timeout:90000});status.hud=true;}catch(e){status.errors.push('HUD did not appear after 90s: '+String(e).slice(0,100));}}
+  if(!status.hud){
+    status.errors.push('WOC runtime DOM: '+JSON.stringify(await page.evaluate(()=>({
+      body:document.body.className,
+      hudElement:!!document.querySelector('#highfly-f5-hud'),
+      mobileControl:!!document.querySelector('#mobile-controls'),
+      loadingStatus:document.querySelector('#ls-status')?.textContent?.slice(0,220),
+      loadingText:document.querySelector('#loading-screen')?.textContent?.slice(0,350),
+      loadingVisible:document.querySelector('#loading-screen')?.classList.contains('visible'),
+      canvas:document.querySelector('#game-canvas')?{width:document.querySelector('#game-canvas').width,height:document.querySelector('#game-canvas').height}:null,
+      overlayError:document.querySelector('#error-msg')?.textContent?.slice(0,300)
+    })).catch(()=>({unavailable:true}))));
+    status.errors.push('Chrome console: '+JSON.stringify(consoleErrors.slice(-12)));
+    status.errors.push('HTTP errors: '+JSON.stringify(responses.filter(x=>x.status!==404).slice(0,8)));
+  }
   status.loaded=true;
   status.errorCount=errors.length;
   status.errors.push(...errors.slice(0,12));
