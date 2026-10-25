@@ -37,6 +37,8 @@ jobs:
         run: |
           node scripts/f5-install-local-launcher.mjs upstream/world-of-claudecraft
           node scripts/f5-wire-native-hud.mjs upstream/world-of-claudecraft
+      - name: Scope Vite and GLB/KTX loader to /HIGHFLY-FOUNDATION/f5/
+        run: node scripts/f5-pages-prefix.mjs upstream/world-of-claudecraft
       - name: Build FULL WOC original world engine + editor
         run: |
           cd upstream/world-of-claudecraft
@@ -66,13 +68,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python3 -m http.server 8765 --bind 127.0.0.1 --directory f5-public-review >/tmp/highfly-f5-pages-http.log 2>&1 &
+          mkdir -p f5-http-root/HIGHFLY-FOUNDATION
+          ln -s "$PWD/f5-public-review" f5-http-root/HIGHFLY-FOUNDATION/f5
+          python3 -m http.server 8765 --bind 127.0.0.1 --directory f5-http-root >/tmp/highfly-f5-pages-http.log 2>&1 &
           server_pid=$!
           trap 'kill "$server_pid" 2>/dev/null || true' EXIT
           cp scripts/f5-pages-browser-smoke.mjs upstream/world-of-claudecraft/f5-pages-browser-smoke.mjs
           cd upstream/world-of-claudecraft
-          node f5-pages-browser-smoke.mjs
-          curl -fsSL http://127.0.0.1:8765/editor.html -o /tmp/highfly-f5-editor
+          F5_TEST_URL=http://127.0.0.1:8765/HIGHFLY-FOUNDATION/f5 node f5-pages-browser-smoke.mjs
+          curl -fsSL http://127.0.0.1:8765/HIGHFLY-FOUNDATION/f5/editor.html -o /tmp/highfly-f5-editor
           grep -qi '<html' /tmp/highfly-f5-editor
           echo F5_PAGES_LICENCED_SUBSET_BROWSER_GREEN
       - name: Report metadata only, never upload build before review
