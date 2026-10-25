@@ -42,6 +42,8 @@ jobs:
       - name: Scope Vite and GLB/KTX loader to /HIGHFLY-FOUNDATION/f5/
         run: node scripts/f5-pages-prefix.mjs upstream/world-of-claudecraft
       - name: Build FULL WOC original world engine + editor
+        env:
+          VITE_HIGHFLY_F5_OFFLINE: '1'
         run: |
           cd upstream/world-of-claudecraft
           pnpm run build
