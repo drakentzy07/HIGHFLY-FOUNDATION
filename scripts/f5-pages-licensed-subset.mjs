@@ -60,10 +60,18 @@ for await(const src of walk(SRC)){
   } else if(rel.startsWith('assets/')) {
     permit=['.js','.css','.mjs','.wasm'].includes(ext)?'Compiled original MIT code (dependencies retain own licenses)':null;
   } else if(/^basis\/(?:basis_transcoder\.(?:js|wasm))$/.test(rel))permit='Apache-2.0 three.js Basis transcoder';
+  else if(/^fonts\/[^/]+\.woff2$/.test(rel))permit='SIL OFL 1.1: font families recorded in WOC CREDITS.md';
   else if(['index.html','play.html','editor.html','highfly-f5-local.html','guide.html','manifest.webmanifest'].includes(rel))permit='Original MIT app/client entry';
   // Misc public static images/audio/brand/icon art remain BLOCKED unless individually licensed.
   if(permit){await put(src,join(dest,rel));report.approved.push({path:rel,credit:permit});}
   else report.blocked.push(rel);
+}
+// Some WOC loading-screen image elements use literal source URLs instead of
+// assetUrl(). Restore only their project-fork-permitted raw aliases.
+for(const [hashed,logical] of manifest){
+  if(!/^textures\/loading\/[^/]+\.webp$/.test(logical))continue;
+  if(!allowResource(logical))continue;
+  try{await put(join(SRC,hashed),join(dest,logical));report.approved.push({path:logical,credit:'With project only: raw alias for licensed loading screen art'});}catch(e){throw Error('Missing permitted loading image original/hash: '+logical);}
 }
 for(const name of ['LICENSE','CREDITS.md','THIRD_PARTY_NOTICES.md']) {
   const p=join(root,name);try{await put(p,join(dest,name));}catch(e){if(name!=='THIRD_PARTY_NOTICES.md')throw e;}
