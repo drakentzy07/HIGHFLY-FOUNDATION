@@ -34,7 +34,8 @@ try {
       loadingText:document.querySelector('#loading-screen')?.textContent?.slice(0,350),
       loadingVisible:document.querySelector('#loading-screen')?.classList.contains('visible'),
       canvas:document.querySelector('#game-canvas')?{width:document.querySelector('#game-canvas').width,height:document.querySelector('#game-canvas').height}:null,
-      overlayError:document.querySelector('#error-msg')?.textContent?.slice(0,300)
+      overlayError:document.querySelector('#error-msg')?.textContent?.slice(0,300),
+      fatalOverlay:document.querySelector('#disconnect-overlay')?.textContent?.slice(0,1200)
     })).catch(()=>({unavailable:true}))));
     status.errors.push('Chrome console: '+JSON.stringify(consoleErrors.slice(-12)));
     status.errors.push('HTTP errors: '+JSON.stringify(responses.filter(x=>x.status!==404).slice(0,8)));
