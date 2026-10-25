@@ -69,4 +69,29 @@ sky=sky.replace(/\/env\/(vale_day|marsh_overcast|peaks_dawn|palmreach_day|everga
 if(swapped<20)throw Error('Pinned WOC sky mapping changed; refused partial legal sky adaptation: '+swapped);
 await writeFile(skyPath,sky,'utf8');
 console.log('F5_LEGAL_REALM_SKY_FALLBACKS',swapped);
+
+// In the legal-only Pages build, missing 3D media must not crash scene composition.
+// Keep the ORIGINAL world layout/placements, substitute a simple original mesh
+// ONLY for material that was explicitly excluded from the rights-cleared package.
+const propPath=join(root,'src/render/props.ts');
+let props=await readFile(propPath,'utf8');
+const propAnchor='  const gltf = loadedProps.get(key);\n  if (!gltf) throw new Error(`prop asset not preloaded: ${key} (${def.url})`);';
+if(!props.includes(propAnchor))throw Error('WOC props registry changed; no blind patch');
+const propReplacement=[
+  "  if (!loadedProps.has(key) && import.meta.env.VITE_HIGHFLY_F5_LICENSED_SUBSET === '1') {",
+  "    const fallbackScene = new THREE.Group();",
+  "    const fallbackMesh = new THREE.Mesh(",
+  "      new THREE.BoxGeometry(1, 1, 1),",
+  "      new THREE.MeshStandardMaterial({color:0x82796a, roughness:1}),",
+  "    );",
+  "    fallbackMesh.name = 'HIGHFLY_RIGHTS_SAFE_FALLBACK';",
+  "    fallbackScene.add(fallbackMesh);",
+  "    loadedProps.set(key, {scene:fallbackScene} as GLTF);",
+  "  }",
+  "  const gltf = loadedProps.get(key);",
+  "  if (!gltf) throw new Error(`prop asset not preloaded: ${key} (${def.url})`);",
+].join('\n');
+props=props.replace(propAnchor,propReplacement);
+await writeFile(propPath,props,'utf8');
+console.log('F5_PROPS_PROCEDURAL_FALLBACK_READY');
 console.log('F5_SCOPED_GITHUB_PAGES_PREFIX_READY',prefix);
