@@ -1,0 +1,69 @@
+name: HIGHFLY F3 Web + Pages
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install same renderer/build versions as WOC 0.44.7
+        run: npm install --no-audit --no-fund
+      - name: Test Hunter logic
+        run: npm test
+      - name: Download ONLY approved CC0 KayKit character GLBs
+        shell: bash
+        run: |
+          set -euo pipefail
+          ref='672074b73ba276876a19e8816ecdc5241817ab47'
+          base="https://raw.githubusercontent.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0/$ref/addons/kaykit_character_pack_adventures"
+          mkdir -p public/assets/kaykit
+          curl -fL --retry 3 "$base/Characters/gltf/Knight.glb" -o public/assets/kaykit/Knight.glb
+          curl -fL --retry 3 "$base/Characters/gltf/Mage.glb" -o public/assets/kaykit/Mage.glb
+          curl -fL --retry 3 "$base/Characters/gltf/Rogue.glb" -o public/assets/kaykit/Rogue.glb
+          curl -fL --retry 3 "$base/LICENSE.txt" -o public/assets/kaykit/LICENSE.txt
+          test "$(git hash-object public/assets/kaykit/Knight.glb)" = '717b56ca2b5ff5392679774725201ba03a3eefab'
+          test "$(git hash-object public/assets/kaykit/Mage.glb)" = 'c89f19f6e707f6e07e4632a08876bd6d0172b082'
+          test "$(git hash-object public/assets/kaykit/Rogue.glb)" = 'c8827661105eef7b2bfbef3bc676d41a47625733'
+          echo 'KayKit CC0 GLB asset hashes validated.'
+      - name: Build browser entry
+        run: npm run build:app
+      - name: Upload static build
+        if: github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Enable Pages (if missing)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api "repos/${{ github.repository }}/pages" >/dev/null 2>&1 || \
+            gh api -X POST "repos/${{ github.repository }}/pages" -f build_type=workflow
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - id: deploy
+        name: Publish HIGHFLY F3 entry
+        uses: actions/deploy-pages@v4
