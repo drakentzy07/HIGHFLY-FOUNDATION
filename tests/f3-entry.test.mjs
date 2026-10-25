@@ -22,7 +22,7 @@ test("browser entry loads and persists the canonical universal Hunter",()=>{
   assert.equal(h.role,"hunter");
 });
 test("3D app renders a KayKit GLB and has touch camera + movement controls",()=>{
-  const world=read("src/app/world.js"),ui=read("src/app/main.js");
+  const world=read("src/app/world-native.js"),ui=read("src/app/main.js");
   assert.match(world,/GLTFLoader/);
   assert.match(world,/loadAsync\(/);
   assert.match(world,/dragCamera\(/);
