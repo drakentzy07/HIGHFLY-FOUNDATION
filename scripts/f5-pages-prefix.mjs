@@ -48,4 +48,25 @@ const replacement=[
 preload=preload.replace(failureAnchor,replacement);
 await writeFile(preloadPath,preload,'utf8');
 console.log('F5_MISSING_MEDIA_PRELOAD_RECOVERY_OPT_IN');
+// The seven WOC project-generated realm sky sets are expressly retained within forks.
+// Other sky KTX2s lack individual coverage in the frozen CREDITS ledger.
+// Point those biomes at the credited project-fork sky without publishing the originals.
+const skyPath=join(root,'src/render/sky.ts');
+let sky=await readFile(skyPath,'utf8');
+const skyFallbacks={
+  vale_day:'fen_day',
+  marsh_overcast:'wraithwood_gloom',
+  peaks_dawn:'frost_twilight',
+  palmreach_day:'fen_day',
+  evergarden_day:'fen_day',
+  galecrest_day:'wraithwood_gloom',
+  farshore_day:'fen_day'
+};
+let swapped=0;
+sky=sky.replace(/\/env\/(vale_day|marsh_overcast|peaks_dawn|palmreach_day|evergarden_day|galecrest_day|farshore_day)_(1k|2k|512)\.ktx2/g,(_all,name,size)=>{
+  swapped++; return '/env/'+skyFallbacks[name]+'_'+size+'.ktx2';
+});
+if(swapped<20)throw Error('Pinned WOC sky mapping changed; refused partial legal sky adaptation: '+swapped);
+await writeFile(skyPath,sky,'utf8');
+console.log('F5_LEGAL_REALM_SKY_FALLBACKS',swapped);
 console.log('F5_SCOPED_GITHUB_PAGES_PREFIX_READY',prefix);
