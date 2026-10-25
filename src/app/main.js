@@ -88,6 +88,7 @@ node("create-btn").addEventListener("click",()=>{
 node("menu-btn").addEventListener("click",()=>{
   if(game){current.position=game.getPosition();game.stop();game=null;}
   keyboard.clear();joy={x:0,y:0};save();updateLanding();show("landing");
+window.__highflyAppReady=true; // one-way smoke readiness marker
 });
 function updateInput(){
   if(!game)return;
