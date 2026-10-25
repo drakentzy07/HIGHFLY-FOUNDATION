@@ -3,6 +3,7 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { VISUAL_PRESETS } from "../core/hunter.mjs";
 import { stickToWorld } from "./movement-axis.mjs";
 import { createNativeWocTerrain } from "./woc-native-layer.mjs";
+import { renderAuthenticFoliage } from "./woc-authored-foliage.mjs";
 import { initGfxTier } from "../../.vendor/world-of-claudecraft/src/render/gfx.ts";
 import { nativeWorldHeight,nativeWorldStart,nativeWaterLevelAt } from "./native-woc-source.mjs";
 import {nativeBuildingsNear,nativeWellsNear,nativeNpcsNear,nativeCampsNear,
@@ -167,6 +168,7 @@ export async function bootWorld(canvas,hunter,{onState,onNotice,onZone}={}){
   try{await native.ready;}catch(e){sceneError=e;}
   if(sceneError){renderer.dispose();native.dispose();throw new Error("WOC terrain failed: "+sceneError.message);}
   const props=await loadAuthoredProps(scene,position,loader,onNotice);
+  const foliage=await renderAuthenticFoliage({scene,loader,start:position,seed:SEED,notice:onNotice});
   const npcs=await addAuthoredNpcs(scene,position,loader);
   const wolf=await addAuthoredWolf(scene,position,loader);
   onNotice?.("WOC original: "+roads.count+" tramos de caminos · "+props.count+" props CC0 · "+npcs.length+" NPC cercanos");
