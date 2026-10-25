@@ -10,7 +10,11 @@ let status={loaded:false,offline:false,entered:false,hud:false,errorCount:0,erro
 try {
   await page.goto(base+'/?lang=es',{waitUntil:'domcontentloaded',timeout:60000});
   await page.locator('#game-canvas').waitFor({timeout:30000});
-  await page.locator('#btn-offline').evaluate(b=>b.click());
+  await page.waitForTimeout(7000); // allow main module/i18n and Vite imports to initialize
+  await page.locator('#server-select-trigger').click({timeout:20000});
+  await page.locator('#server-select-menu').waitFor({state:'visible',timeout:15000});
+  await page.locator('#server-opt-offline').click();
+  await page.locator('#btn-play').click({timeout:15000});
   await page.locator('#offline-select').waitFor({state:'visible',timeout:30000});
   status.offline=true;
   await page.locator('#char-name').fill('HunterF5');
@@ -25,6 +29,10 @@ try {
   if(!status.loaded||!status.entered||!status.hud)process.exitCode=1;
 } catch(e) {
   status.errors.push(String(e).slice(0,500));
+  status.errors.push(...errors.slice(0,8));
+  status.missingMedia=responses.filter(x=>x.status===404).length;
+  status.errors.push('HTTP errors: '+JSON.stringify(responses.slice(0,12)));
+  status.errors.push('Body classes: '+await page.evaluate(()=>document.body.className).catch(()=>''));
   console.log('F5_MOBILE_BROWSER_SMOKE_FAILED',JSON.stringify(status));
   process.exitCode=1;
 } finally{await browser.close();}
