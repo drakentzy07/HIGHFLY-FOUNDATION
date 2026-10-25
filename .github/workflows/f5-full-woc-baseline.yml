@@ -53,6 +53,15 @@ jobs:
         run: pnpm run build
       - name: Audit original media footprint and fail-closed publishing status
         run: node scripts/f5-media-inventory.mjs upstream/world-of-claudecraft
+      - name: Generate per-file SHA256 provenance metadata (NO media binaries)
+        run: node scripts/f5-asset-hashes.mjs upstream/world-of-claudecraft f5-audit-metadata
+      - name: Archive only JSON metadata, never the original build or media
+        uses: actions/upload-artifact@v4
+        with:
+          name: f5-provenance-metadata
+          path: f5-audit-metadata/*.json
+          retention-days: 7
+          if-no-files-found: error
       - name: Prove full original modules compiled; do not distribute restricted media
         shell: bash
         run: |
@@ -63,4 +72,4 @@ jobs:
           printf 'F5_PUBLIC_MEDIA_ENTRIES=%s\n' "$(find public -type f | wc -l)"
           printf 'F5_BUILD_TOTAL_BYTES=%s\n' "$(du -sb dist | awk '{print $1}')"
           echo 'F5_FULL_UPSTREAM_COMPILE_OK_BUT_NOT_LICENSE_CLEAN'
-          echo 'SAFETY: no upload-artifact, no Pages deploy, no copy back to HIGHFLY repository.'
+          echo 'SAFETY: JSON metadata ONLY; no binary artifact, Pages deploy or copy back to HIGHFLY repository.'
