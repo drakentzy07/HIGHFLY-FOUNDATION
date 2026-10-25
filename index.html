@@ -9,9 +9,9 @@
 <section id="landing" class="screen start-screen">
   <div class="start-decor"></div>
   <div class="intro">
-    <span class="eyebrow">FOUNDATION · F3 PRUEBA 3D</span>
+    <span class="eyebrow">FOUNDATION · F4 MUNDO CLAUDECRAFT 0.44.7</span>
     <h1>HIGHFLY</h1><p class="subtitle">Tu mundo. Tu cazador. Sin clases.</p>
-    <p class="subcopy">Primer ingreso técnico. El terreno y los edificios de esta prueba son temporales: la integración del mundo de ClaudeCraft 0.44.7 sigue pendiente.</p>
+    <p class="subcopy">Entrá en la geografía original de ClaudeCraft 0.44.7 con nuestro Hunter universal. Esta versión ya usa el terreno, caminos y estructuras originales permitidas; NPC y combate están en integración.</p>
     <button id="continue-btn" class="main-btn" hidden>Continuar partida</button>
     <button id="new-btn" class="alt-btn">Crear cazador</button>
   </div>
@@ -45,11 +45,11 @@
     <div class="small-bars"><div class="bar"><div id="mp-fill" class="bar-fill mana"></div></div><div class="bar"><div id="energy-fill" class="bar-fill energy"></div></div></div></div>
     <button id="fullscreen-btn" class="fullscreen-btn" type="button" aria-label="Pantalla completa">⛶ Completa</button><button id="menu-btn" class="menu-btn">Menú</button>
   </div>
-  <div class="zone-name"><strong>ZONA DE INTEGRACIÓN</strong><span>Escenario 3D provisional · No es el mapa definitivo</span></div>
+  <div class="zone-name"><strong id="zone-title">CARGANDO ZONA</strong><span id="zone-subtitle">Terreno y posiciones originales WOC 0.44.7 · Mundo en integración</span></div>
   <div class="controls-hint">Izquierda: mover · Derecha: cámara · PC: WASD y ratón</div>
   <div id="joystick" class="joystick"><div id="joystick-knob" class="joystick-knob"></div></div>
-  <div class="combat-buttons"><button id="jump-btn" class="round-btn">SALTAR</button><button id="dash-btn" class="round-btn">DASH</button></div>
-  <div class="bottom-help" id="bottom-help">Movimiento + cámara + guardado en prueba · 4 habilidades en preparación</div>
+  <div class="combat-buttons"><button id="jump-btn" class="round-btn">SALTAR</button><button id="dash-btn" class="round-btn">DASH</button><button id="use-btn" class="round-btn">USAR</button><button id="attack-btn" class="round-btn">ATK*</button></div>
+  <div class="bottom-help" id="bottom-help">*ATK animado sin daño · Entorno WOC real parcial · Las 4 skills siguen en preparación</div>
 </section>
 <section id="loading" class="screen loading-screen" hidden><div class="spinner"></div><h2>Entrando al mundo...</h2><p id="loading-detail">Cargando nuestro cazador KayKit</p></section>
 </main><script type="module" src="/src/app/main.js"></script>
