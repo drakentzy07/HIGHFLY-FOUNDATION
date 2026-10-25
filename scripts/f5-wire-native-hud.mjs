@@ -5,7 +5,7 @@ const p=join(root,'src','main.ts');
 const text=await readFile(p,'utf8');
 const anchor='  mobileControls.start();';
 if(!text.includes(anchor))throw Error('Pinned upstream main.ts callback anchor changed; no unsafe patch');
-if(text.includes('installHighflyF5TouchHud'))throw Error('F5 integration already applied; refuse duplicate');
+if(text.includes('installHighflyF5TouchHud')) { console.log('F5_NATIVE_HUD_ALREADY_INSTALLED'); process.exit(0); }
 const imp="import { installHighflyF5TouchHud } from './game/highfly_f5_touch_hud';\n";
 const setup=`  // HIGHFLY F5 controls act on the actual native WOC World/HUD, not a placeholder world.\n  installHighflyF5TouchHud({\n    attack: () => attackNearest(),\n    jump: () => input.triggerTouchJump(),\n    interact: () => interactKey(),\n    cancel: () => { hud.cancelGroundAim(); },\n    skillDown: (slot) => hud.pressSlot(slot),\n    skillUp: (slot) => hud.releaseSlot(slot),\n  });\n`;
 const out=imp+text.replace(anchor,anchor+'\n'+setup);
