@@ -71,7 +71,7 @@ async function loadAuthoredProps(scene,start,loader,notice){
     return seen.get(path);
   }
   const buildings=nativeBuildingsNear(start,95).slice(0,90);
-  let done=0;
+  let done=0;const failures=[];
   for(const b of buildings){
     const assetName=b.assetId?.split("/").at(-1)??null;
     const officialEastbrook=new Set(["hexb_townhall.glb","hexb_workshop.glb","hexb_tavern.glb",
@@ -82,7 +82,7 @@ async function loadAuthoredProps(scene,start,loader,notice){
     const variant=assetName??(b.kind==="inn"?"inn.glb":
       ["house_1.glb","house_2.glb","house_3.glb"][Math.abs(Math.floor(b.x*7+b.z*11))%3]);
     let src;
-    try{src=await asset(variant);}catch(e){console.warn("WOC CC0 model missing",variant,e);continue;}
+    try{src=await asset(variant);}catch(e){failures.push(variant+": "+String(e?.message??e));console.warn("WOC CC0 model missing",variant,e);continue;}
     const model=src.clone(true),outer=new THREE.Group(),measure=estimateRigHeight(model);
     const s=Math.min((b.w||4)/Math.max(.001,measure.size.x),(b.d||4)/Math.max(.001,measure.size.z));
     model.scale.setScalar(clamp(s,.01,12));
@@ -108,7 +108,7 @@ async function loadAuthoredProps(scene,start,loader,notice){
     }catch(e){console.warn("WOC well asset issue",e);}
   }
   notice?.("WOC: "+done+" edificios/pozos con posiciones originales cargados");
-  return {count:done,obstacles};
+  return {count:done,obstacles,requested:buildings.length,failures:failures.slice(0,5)};
 }
 async function addAuthoredNpcs(scene,start,loader){
   const npcs=nativeNpcsNear(start,55).slice(0,12);
@@ -258,7 +258,7 @@ export async function bootWorld(canvas,hunter,{onState,onNotice,onZone}={}){
   loop();
   return {
     loadedKayKit:loaded,worldSource:"World of ClaudeCraft v0.44.7",
-    getWorldSummary(){return {zone:zoneId,npcs:npcs.length,roads:roads.count,buildings:props.count,wolves:wolf.count};},
+    getWorldSummary(){return {zone:zoneId,npcs:npcs.length,roads:roads.count,buildings:props.count,buildingRequests:props.requested,assetErrors:props.failures,wolves:wolf.count,foliage:foliage.count};},
     getPosition(){return {...position};},
     setStick(x,y){joy={x:clamp(x,-1,1),y:clamp(y,-1,1)};},
     dragCamera(dx,dy){yaw-=dx*.0045;pitch=clamp(pitch+dy*.003,.07,.96);},
