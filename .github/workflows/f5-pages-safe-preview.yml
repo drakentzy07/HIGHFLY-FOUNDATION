@@ -3,6 +3,9 @@ on:
   push:
     branches: [experiment/f5-pages-safe-preview]
   workflow_dispatch:
+concurrency:
+  group: highfly-f5-pages-preview
+  cancel-in-progress: true
 permissions:
   contents: read
   pages: write
