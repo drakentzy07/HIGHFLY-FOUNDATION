@@ -44,6 +44,7 @@ jobs:
       - name: Build FULL WOC original world engine + editor
         env:
           VITE_HIGHFLY_F5_OFFLINE: '1'
+          VITE_HIGHFLY_F5_LICENSED_SUBSET: '1'
         run: |
           cd upstream/world-of-claudecraft
           pnpm run build
