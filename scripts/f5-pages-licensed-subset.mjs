@@ -75,7 +75,7 @@ page=page.replace(/<meta name="apple-mobile-web-app-title" content="[^"]*"\s*\/>
 await writeFile(index,page,'utf8');
 const launch=join(dest,'highfly-f5-local.html');
 let home=await readFile(launch,'utf8');
-home=home.replace('F5 LOCAL','F5 WEB').replace('funciona solo mientras el servidor local de desarrollo está abierto','funciona en un servidor de pruebas público y utiliza únicamente medios con permisos identificados');
+home=home.replace('F5 LOCAL','F5 WEB').replace('funciona solo mientras el servidor local de desarrollo está abierto','funciona en un servidor de pruebas público y utiliza únicamente medios con permisos identificados').replace('href="/?lang=es"','href="./?lang=es"').replace('href="/editor"','href="./editor.html"');
 await writeFile(launch,home,'utf8');
 report.visualGaps=['Only a licensed subset of GLBs/textures included; some models fall back to procedural shapes','Unverified/rightholder-restricted UI, audio and maps are intentionally absent','Gameplay is original WOC with HIGHFLY compatibility controls; Hunter universal and FURY not finished'];
 await writeFile(join(dest,'HIGHFLY_F5_RELEASE_SCOPE.json'),JSON.stringify({...report,approvedCount:report.approved.length,blockedCount:report.blocked.length},null,2));
