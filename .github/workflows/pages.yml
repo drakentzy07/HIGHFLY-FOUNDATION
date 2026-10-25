@@ -43,6 +43,15 @@ jobs:
           node-version: '22'
       - name: Install same renderer/build versions as WOC 0.44.7
         run: npm install --no-audit --no-fund
+      - name: Include official Three.js KTX2/Basis decoder used by WOC models
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p public/assets/basis
+          cp node_modules/three/examples/jsm/libs/basis/basis_transcoder.js public/assets/basis/basis_transcoder.js
+          cp node_modules/three/examples/jsm/libs/basis/basis_transcoder.wasm public/assets/basis/basis_transcoder.wasm
+          test -s public/assets/basis/basis_transcoder.js
+          test -s public/assets/basis/basis_transcoder.wasm
       - name: Test Hunter logic
         run: npm test
       - name: Download ONLY approved CC0 KayKit character GLBs
