@@ -7,8 +7,7 @@ import { VISUAL_PRESETS } from "../core/hunter.mjs";
 const lerp=(a,b,t)=>a+(b-a)*t;
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 const hAt=(x,z)=>0.11*Math.sin(x*.25)+0.17*Math.sin(z*.13)+0.12*Math.cos(x*.19+z*.1);
-const rand=()=>{let s=18122;return ()=>((s=(s*1664525+1013904223)>>>0)/4294967296)})();
-const rng=rand();
+const rng=(()=>{let s=18122;return ()=>((s=(s*1664525+1013904223)>>>0)/4294967296);})();
 const stone=new THREE.MeshLambertMaterial({color:"#98958a"});
 function box(scene,w,h,d,x,z,color,y=0){
   const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshLambertMaterial({color}));
