@@ -24,7 +24,7 @@ try {
   await page.locator('#mobile-preflight-continue').waitFor({state:'visible',timeout:20000});
   await page.locator('#mobile-preflight-continue').evaluate(el=>el.click());
   try{await page.waitForFunction(()=>document.body.classList.contains('game-active'),null,{timeout:90000});status.entered=true;}catch(e){status.errors.push('Game never marked active within timeout: '+String(e).slice(0,180));}
-  if(status.entered){try{await page.locator('#highfly-f5-hud').waitFor({state:'visible',timeout:90000});status.hud=true;}catch(e){status.errors.push('HUD did not appear after 90s: '+String(e).slice(0,100));}}
+  if(status.entered){try{await page.waitForFunction(()=>document.querySelector('#highfly-f5-hud')||document.querySelector('#disconnect-overlay'),null,{timeout:60000});status.hud=await page.locator('#highfly-f5-hud').isVisible().catch(()=>false);if(!status.hud)status.errors.push('World renderer fatal overlay before F5 HUD');}catch(e){status.errors.push('HUD did not appear after 60s: '+String(e).slice(0,100));}}
   if(!status.hud){
     status.errors.push('WOC runtime DOM: '+JSON.stringify(await page.evaluate(()=>({
       body:document.body.className,
