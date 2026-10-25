@@ -74,3 +74,12 @@ Mundo 15 zonas, generación de terreno y aguas, caminos, streaming, motor de ren
 ## Estado
 
 El prototipo parcial F4 demostró compilación y entrada geográfica de WOC, pero falló inicialmente al cargar edificios por falta de decodificadores **KTX2 y Meshopt**. Ese aprendizaje se conserva como diagnóstico, no como nueva arquitectura. Hasta que F5 ofrezca un reemplazo verificable, la app pública F3/F4a anterior permanece intacta.
+
+
+## F5-01 — inventario individual reproducible (metadatos, no binarios)
+
+Se añadió `scripts/f5-asset-hashes.mjs` al workflow F5. Tras compilar el original, enumera archivos de `public/` y medios bajo `src/`, calculando **SHA-256, ruta, extensión y tamaño por archivo**. También genera un ledger de filas de `CREDITS.md` con referencia a línea, autor, fuente y regla de redistribución.
+
+El workflow sube **únicamente tres JSON de metadatos** con retención de 7 días. No publica ni sube GLB, texturas, audios, `dist/`, ni la aplicación de WOC. Todas las entradas individuales conservan `license: UNVERIFIED` y `public_release_allowed: false` hasta que haya correspondencia documentada archivo→licencia; un pack descrito en `CREDITS.md` no se asigna automáticamente a un archivo solo por su carpeta.
+
+Estado de F5-01: implementado en la rama experimental. La publicación F5 continúa bloqueada hasta completar la clasificación y las sustituciones permitidas. El pipeline genera el listado verificable necesario para esa revisión, pero **no equivale a una auditoría de licencia terminada**.
