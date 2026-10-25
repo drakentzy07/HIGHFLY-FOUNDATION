@@ -1,0 +1,14 @@
+{
+  "name": "highfly-foundation",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Isolated classless hunter core for HIGHFLY — no external assets imported",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "demo": "node scripts/demo-hunter.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
