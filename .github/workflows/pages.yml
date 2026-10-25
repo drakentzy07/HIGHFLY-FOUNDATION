@@ -67,3 +67,20 @@ jobs:
       - id: deploy
         name: Publish HIGHFLY F3 entry
         uses: actions/deploy-pages@v4
+      - name: Verify public entry and KayKit model URL
+        env:
+          PAGE_URL: ${{ steps.deploy.outputs.page_url }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Pages can take a little time to propagate to its public hostname.
+          for attempt in $(seq 1 12); do
+            if curl -fsSL --connect-timeout 8 --max-time 18 "${PAGE_URL}" -o /tmp/highfly-page.html; then
+              break
+            fi
+            echo "Public entry not ready: attempt $attempt"
+            sleep 5
+          done
+          grep -qi "HIGHFLY" /tmp/highfly-page.html
+          curl -fsSIL --retry 8 --retry-delay 5 --retry-all-errors "${PAGE_URL}assets/kaykit/Knight.glb" >/dev/null
+          echo "PUBLIC_HIGHFLY_ENTRY_AND_KAYKIT_ASSET_OK"
