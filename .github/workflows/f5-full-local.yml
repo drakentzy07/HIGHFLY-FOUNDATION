@@ -46,6 +46,8 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Add separate HIGHFLY local launch page without changing original game
         run: node scripts/f5-install-local-launcher.mjs upstream/world-of-claudecraft
+      - name: Inject HIGHFLY mobile HUD on native WOC World input
+        run: node scripts/f5-wire-native-hud.mjs upstream/world-of-claudecraft
       - name: Compile full original world and editor with local launch page
         working-directory: upstream/world-of-claudecraft
         run: pnpm run build
@@ -58,5 +60,6 @@ jobs:
           test -s upstream/world-of-claudecraft/dist/editor.html
           grep -q 'HIGHFLY FOUNDATION' upstream/world-of-claudecraft/dist/highfly-f5-local.html
           grep -q 'href="/editor"' upstream/world-of-claudecraft/dist/highfly-f5-local.html
-          echo 'F5_LOCAL_FULL_WORLD_EDITOR_BUILD_GREEN'
+          grep -q 'installHighflyF5TouchHud' upstream/world-of-claudecraft/src/main.ts
+          echo 'F5_LOCAL_FULL_WORLD_EDITOR_HUD_BUILD_GREEN'
           echo 'SAFETY: no WOC source, media, dist, or finished game uploaded or published.'
