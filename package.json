@@ -3,12 +3,21 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Isolated classless hunter core for HIGHFLY — no external assets imported",
+  "description": "HIGHFLY — classless Hunter and mobile 3D entry; explicit provenance-gated assets",
   "scripts": {
     "test": "node --test tests/*.test.mjs",
-    "demo": "node scripts/demo-hunter.mjs"
+    "demo": "node scripts/demo-hunter.mjs",
+    "dev": "vite --host 0.0.0.0",
+    "build:app": "vite build",
+    "preview:app": "vite preview --host 0.0.0.0"
   },
   "engines": {
     "node": ">=20"
+  },
+  "dependencies": {
+    "three": "0.185.1"
+  },
+  "devDependencies": {
+    "vite": "8.0.16"
   }
 }
