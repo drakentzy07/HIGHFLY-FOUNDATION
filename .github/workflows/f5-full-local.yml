@@ -1,0 +1,62 @@
+name: F5 FULL local WOC world + editor (no publication)
+on:
+  push:
+    branches: [experiment/f5-full-local-world]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify-complete-local:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+      PUPPETEER_SKIP_DOWNLOAD: '1'
+      CI: 'true'
+    steps:
+      - name: Checkout HIGHFLY integration scripts
+        uses: actions/checkout@v4
+      - name: Checkout exact FULL WOC v0.44.7 into ephemeral runner
+        uses: actions/checkout@v4
+        with:
+          repository: levy-street/world-of-claudecraft
+          ref: 493c35a108cef6c8aa290e8793107b1cd117886e
+          path: upstream/world-of-claudecraft
+          persist-credentials: false
+      - name: Verify pristine original source and credit notice
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C upstream/world-of-claudecraft rev-parse HEAD)" = "493c35a108cef6c8aa290e8793107b1cd117886e"
+          test -s upstream/world-of-claudecraft/src/sim/world.ts
+          test -s upstream/world-of-claudecraft/src/editor/main.ts
+          test -s upstream/world-of-claudecraft/CREDITS.md
+          test -s upstream/world-of-claudecraft/LICENSE
+          echo "F5_FULL_WORLD_EDITOR_SOURCE_PRESENT"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Activate pinned pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.34.5 --activate
+      - name: Install upstream dependencies
+        working-directory: upstream/world-of-claudecraft
+        run: pnpm install --frozen-lockfile
+      - name: Add separate HIGHFLY local launch page without changing original game
+        run: node scripts/f5-install-local-launcher.mjs upstream/world-of-claudecraft
+      - name: Compile full original world and editor with local launch page
+        working-directory: upstream/world-of-claudecraft
+        run: pnpm run build
+      - name: Verify local launcher, editor and original world compiled
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s upstream/world-of-claudecraft/dist/index.html
+          test -s upstream/world-of-claudecraft/dist/highfly-f5-local.html
+          test -s upstream/world-of-claudecraft/dist/editor.html
+          grep -q 'HIGHFLY FOUNDATION' upstream/world-of-claudecraft/dist/highfly-f5-local.html
+          grep -q 'href="/editor"' upstream/world-of-claudecraft/dist/highfly-f5-local.html
+          echo 'F5_LOCAL_FULL_WORLD_EDITOR_BUILD_GREEN'
+          echo 'SAFETY: no WOC source, media, dist, or finished game uploaded or published.'
