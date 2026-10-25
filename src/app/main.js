@@ -52,7 +52,26 @@ async function enter(hunter){
     alert("El mundo 3D no pudo iniciar. Revisá WebGL y la consola. No se perdió la partida.");
   }
 }
-node("continue-btn").addEventListener("click",()=>{const saved=tryLoad();if(saved)enter(saved)});
+// Must be triggered directly by the user's tap, BEFORE async GLB work.
+// On some in-app browsers the Fullscreen API is blocked: keep playing, offer
+// the manual button, and prefer standalone PWA display when installed.
+function requestGameFullscreen(){
+  const root=document.documentElement;
+  if(document.fullscreenElement)return;
+  if(typeof root.requestFullscreen!=="function"){
+    return;
+  }
+  try{
+    const task=root.requestFullscreen({navigationUI:"hide"});
+    Promise.resolve(task).then(()=>{
+      if(screen.orientation?.lock){
+        Promise.resolve(screen.orientation.lock("landscape")).catch(()=>{});
+      }
+    }).catch(()=>{});
+  }catch{}
+}
+node("fullscreen-btn").addEventListener("click",requestGameFullscreen);
+node("continue-btn").addEventListener("click",()=>{const saved=tryLoad();if(saved){requestGameFullscreen();enter(saved);}});
 node("new-btn").addEventListener("click",()=>{if(tryLoad()&&!confirm("Crear otro cazador reemplazará la partida guardada en este dispositivo. ¿Continuar?"))return;node("creator-error").hidden=true;show("creator")});
 node("back-btn").addEventListener("click",()=>show("landing"));
 node("create-btn").addEventListener("click",()=>{
@@ -61,7 +80,7 @@ node("create-btn").addEventListener("click",()=>{
     if(!name||name.length>24)throw Error("Escribí un nombre de hasta 24 caracteres.");
     const h=makeHunter({id:"main",name,
       presentation:node("hunter-presentation").value,visual:node("hunter-visual").value});
-    current=h;save();enter(h);
+    current=h;save();requestGameFullscreen();enter(h);
   }catch(e){node("creator-error").textContent=e.message;node("creator-error").hidden=false;}
 });
 node("menu-btn").addEventListener("click",()=>{

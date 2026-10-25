@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="es"><head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1,viewport-fit=cover,user-scalable=no"/>
-<meta name="theme-color" content="#071a18"/><meta name="description" content="HIGHFLY - Primer ingreso al mundo con Cazador universal KayKit."/>
+<meta name="theme-color" content="#071a18"/><link rel="manifest" href="./manifest.webmanifest"/><meta name="description" content="HIGHFLY - Primer ingreso al mundo con Cazador universal KayKit."/>
 <title>HIGHFLY — Entrar al mundo</title>
 <link rel="stylesheet" href="/src/app/style.css"/>
 </head><body>
@@ -23,15 +23,15 @@
     <p>No elegís clase ni especialización. Tu apariencia nunca limita tus armas ni habilidades.</p>
     <label for="hunter-name">Nombre del cazador</label>
     <input id="hunter-name" maxlength="24" placeholder="Escribí tu nombre" value="Hunter"/>
-    <label for="hunter-presentation">Presentación</label>
-    <select id="hunter-presentation"><option value="masculino">Masculina</option><option value="femenino">Femenina</option></select>
+    <label for="hunter-presentation">Sexo del cazador</label>
+    <select id="hunter-presentation"><option value="masculino">Masculino</option><option value="femenino">Femenino</option></select>
     <label for="hunter-visual">Modelo KayKit</label>
     <select id="hunter-visual">
       <option value="kaykit_knight">Aventurero con armadura (Knight)</option>
       <option value="kaykit_mage">Viajero arcano (Mage)</option>
       <option value="kaykit_rogue">Explorador (Rogue)</option>
     </select>
-    <p class="note">Estos son tres modelos visuales CC0, no clases. La presentación femenina/masculina queda guardada; aún no hay dos cuerpos base editables confirmados.</p>
+    <p class="note">Estos son tres modelos visuales CC0, no clases. El sexo se guarda por separado de la ropa. IMPORTANTE: este pack todavía no tiene dos rostros hombre/mujer comprobados; el modelo facial se integrará tras esa auditoría.</p>
     <p id="creator-error" class="error" hidden></p>
     <div class="creator-actions"><button id="back-btn" class="alt-btn">Volver</button><button id="create-btn" class="main-btn">Entrar al mundo</button></div>
   </div>
@@ -43,7 +43,7 @@
     <div class="player-meta"><div class="hud-line"><b id="world-name">Hunter</b><span id="world-level">Nv. 1</span></div>
     <div class="bar"><div id="hp-fill" class="bar-fill hp"></div></div>
     <div class="small-bars"><div class="bar"><div id="mp-fill" class="bar-fill mana"></div></div><div class="bar"><div id="energy-fill" class="bar-fill energy"></div></div></div></div>
-    <button id="menu-btn" class="menu-btn">Menú</button>
+    <button id="fullscreen-btn" class="fullscreen-btn" type="button" aria-label="Pantalla completa">⛶ Completa</button><button id="menu-btn" class="menu-btn">Menú</button>
   </div>
   <div class="zone-name"><strong>ZONA DE INTEGRACIÓN</strong><span>Escenario 3D provisional · No es el mapa definitivo</span></div>
   <div class="controls-hint">Izquierda: mover · Derecha: cámara · PC: WASD y ratón</div>
