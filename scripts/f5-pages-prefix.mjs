@@ -28,4 +28,24 @@ iconSource=iconSource.replace(restricted,(_all,pre)=>{replaced++;return pre+"'"+
 if(replaced<4)throw Error('Trademark/commissioned inline SVG patch does not match pinned WOC source');
 await writeFile(iconFile,iconSource,'utf8');
 console.log('F5_RESERVED_INLINE_BRAND_MARKS_REPLACED',replaced);
+// F5 legally-filtered preview: let the original WOC procedural fallbacks handle
+// missing art only. This does NOT excuse other errors, nor prove that entry works.
+const preloadPath=join(root,'src/render/assets/preload.ts');
+let preload=await readFile(preloadPath,'utf8');
+const failureAnchor='  if (failed.length) {\n    throw new Error(';
+if(!preload.includes(failureAnchor))throw Error('Unrecognized upstream preload guard');
+const replacement=[
+  "  if (failed.length && import.meta.env.VITE_HIGHFLY_F5_LICENSED_SUBSET === '1') {",
+  "    const onlyMissingArt = failed.every((f) => /(?:asset load failed|404|not found|failed to fetch|image failed)/i.test(String(f.reason)));",
+  "    if (onlyMissingArt) {",
+  "      console.warn('[HIGHFLY F5] ' + failed.length + ' omitted media preloads; renderer fallback where available');",
+  "      return;",
+  "    }",
+  "  }",
+  "  if (failed.length) {",
+  "    throw new Error("
+].join('\n');
+preload=preload.replace(failureAnchor,replacement);
+await writeFile(preloadPath,preload,'utf8');
+console.log('F5_MISSING_MEDIA_PRELOAD_RECOVERY_OPT_IN');
 console.log('F5_SCOPED_GITHUB_PAGES_PREFIX_READY',prefix);
