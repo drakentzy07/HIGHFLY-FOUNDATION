@@ -22,7 +22,7 @@ test("browser entry loads and persists the canonical universal Hunter",()=>{
   assert.equal(h.role,"hunter");
 });
 test("3D app renders a KayKit GLB and has touch camera + movement controls",()=>{
-  const world=read("src/app/world.js"),ui=read("src/app/main.js");
+  const world=read("src/app/world-native.js"),ui=read("src/app/main.js");
   assert.match(world,/GLTFLoader/);
   assert.match(world,/loadAsync\(/);
   assert.match(world,/dragCamera\(/);
@@ -35,12 +35,12 @@ test("public deployment fetches pinned and hash-verified approved KayKit GLBs",(
   assert.match(wf,/672074b73ba276876a19e8816ecdc5241817ab47/);
   assert.match(wf,/git hash-object/);
   assert.match(wf,/actions\/deploy-pages/);
-  assert.doesNotMatch(wf,/Quaternius|CraftPix/i);
+  assert.doesNotMatch(wf,/quaternius\\.com|CraftPix/i);
 });
-test("temporary world clearly identified; no WOC licensed media silently imported",()=>{
+test("native WOC scene is explicitly labeled authentic and incomplete",()=>{
   const html=read("index.html");
-  assert.match(html,/provisional/i);
-  assert.match(html,/ClaudeCraft 0\.44\.7/);
-  const doc=read("docs/F3-ENTRY-WORLD.md");
-  assert.match(doc,/no es todavía el mapa original/i);
+  assert.match(html,/terreno, caminos y estructuras originales permitidas/i);
+  assert.ok(html.includes("ClaudeCraft 0.44.7"));
+  assert.match(read("src/app/world-native.js"),/createNativeWocTerrain/);
+  assert.match(read("docs/F4-RESTORE-WOC-WORLD.md"),/mundo original/i);
 });

@@ -1,4 +1,4 @@
-name: HIGHFLY F3 Web + Pages
+name: HIGHFLY F4 Real World + Pages
 on:
   push:
     branches: [main]
@@ -11,19 +11,47 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages-${{ github.ref }}
-  cancel-in-progress: true
+  # PR builds are independent: a hung GPU smoke cannot stall fresh diagnostics.
+  # main deploys stay serial to protect the public Pages version.
+  group: pages-${{ github.ref == 'refs/heads/main' && 'production' || github.run_id }}
+  cancel-in-progress: ${{ github.ref == 'refs/heads/main' }}
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Checkout ONLY pinned MIT WOC 0.44.7 source code
+        uses: actions/checkout@v4
+        with:
+          repository: levy-street/world-of-claudecraft
+          ref: 493c35a108cef6c8aa290e8793107b1cd117886e
+          path: .vendor/world-of-claudecraft
+          sparse-checkout: |
+            src
+            LICENSE
+            CREDITS.md
+          sparse-checkout-cone-mode: true
+          persist-credentials: false
+      - name: Verify upstream source license and pinned version
+        run: |
+          test "$(git -C .vendor/world-of-claudecraft rev-parse HEAD)" = '493c35a108cef6c8aa290e8793107b1cd117886e'
+          grep -qi 'MIT License' .vendor/world-of-claudecraft/LICENSE
+          grep -q 'Medieval Village Pack' .vendor/world-of-claudecraft/CREDITS.md
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
       - name: Install same renderer/build versions as WOC 0.44.7
         run: npm install --no-audit --no-fund
+      - name: Include official Three.js KTX2/Basis decoder used by WOC models
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p public/assets/basis
+          cp node_modules/three/examples/jsm/libs/basis/basis_transcoder.js public/assets/basis/basis_transcoder.js
+          cp node_modules/three/examples/jsm/libs/basis/basis_transcoder.wasm public/assets/basis/basis_transcoder.wasm
+          test -s public/assets/basis/basis_transcoder.js
+          test -s public/assets/basis/basis_transcoder.wasm
       - name: Test Hunter logic
         run: npm test
       - name: Download ONLY approved CC0 KayKit character GLBs
@@ -41,8 +69,56 @@ jobs:
           test "$(git hash-object public/assets/kaykit/Mage.glb)" = 'c89f19f6e707f6e07e4632a08876bd6d0172b082'
           test "$(git hash-object public/assets/kaykit/Rogue.glb)" = 'c8827661105eef7b2bfbef3bc676d41a47625733'
           echo 'KayKit CC0 GLB asset hashes validated.'
+      - name: Import ONLY CC0 WOC v0.44.7 Medieval Village + Wolf models
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://raw.githubusercontent.com/levy-street/world-of-claudecraft/493c35a108cef6c8aa290e8793107b1cd117886e/public/models'
+          mkdir -p public/assets/woc-cc0
+          # Assets already used in the WOC world. CREDITS.md confirms the
+          # Quaternius Medieval Village & animated wolf models are CC0.
+          curl -fsSL --retry 4 "$base/props/house_1.glb" -o public/assets/woc-cc0/house_1.glb
+          curl -fsSL --retry 4 "$base/props/house_2.glb" -o public/assets/woc-cc0/house_2.glb
+          curl -fsSL --retry 4 "$base/props/house_3.glb" -o public/assets/woc-cc0/house_3.glb
+          curl -fsSL --retry 4 "$base/props/inn.glb" -o public/assets/woc-cc0/inn.glb
+          curl -fsSL --retry 4 "$base/props/well.glb" -o public/assets/woc-cc0/well.glb
+          curl -fsSL --retry 4 "$base/props/blacksmith.glb" -o public/assets/woc-cc0/blacksmith.glb
+          curl -fsSL --retry 4 "$base/creatures/wolf.glb" -o public/assets/woc-cc0/wolf.glb
+          curl -fsSL --retry 4 "$base/biome/hexb_townhall.glb" -o public/assets/woc-cc0/hexb_townhall.glb
+          curl -fsSL --retry 4 "$base/biome/hexb_workshop.glb" -o public/assets/woc-cc0/hexb_workshop.glb
+          curl -fsSL --retry 4 "$base/biome/hexb_tavern.glb" -o public/assets/woc-cc0/hexb_tavern.glb
+          curl -fsSL --retry 4 "$base/biome/hexb_home_a.glb" -o public/assets/woc-cc0/hexb_home_a.glb
+          curl -fsSL --retry 4 "$base/biome/hexb_home_b.glb" -o public/assets/woc-cc0/hexb_home_b.glb
+          curl -fsSL --retry 4 "$base/biome/hexb_market.glb" -o public/assets/woc-cc0/hexb_market.glb
+          curl -fsSL --retry 4 "$base/biome/hex_church.glb" -o public/assets/woc-cc0/hex_church.glb
+          curl -fsSL --retry 4 "$base/foliage/pine_1.glb" -o public/assets/woc-cc0/pine_1.glb
+          curl -fsSL --retry 4 "$base/foliage/oak_1.glb" -o public/assets/woc-cc0/oak_1.glb
+          curl -fsSL --retry 4 "$base/foliage/twisted_1.glb" -o public/assets/woc-cc0/twisted_1.glb
+          curl -fsSL --retry 4 "$base/foliage/rock_1.glb" -o public/assets/woc-cc0/rock_1.glb
+          test "$(git hash-object public/assets/woc-cc0/house_1.glb)" = '88f7b20a2b4376a53c6e9444910386b1a8a5f510'
+          test "$(git hash-object public/assets/woc-cc0/house_2.glb)" = 'fb45ec1b03e81dc37e133569e91a666e79d4470b'
+          test "$(git hash-object public/assets/woc-cc0/house_3.glb)" = '5cece5805e034c57a1581645e8ddf1f2962ee269'
+          test "$(git hash-object public/assets/woc-cc0/inn.glb)" = 'e65e40883afe48b6c3f4da389d73efc9acd60290'
+          test "$(git hash-object public/assets/woc-cc0/well.glb)" = 'a80bb7f20e048621195e300e58a0aebbcc83af66'
+          test "$(git hash-object public/assets/woc-cc0/blacksmith.glb)" = 'a654d0fb8cdaeca95e45a4a97086b0e072374a34'
+          test "$(git hash-object public/assets/woc-cc0/wolf.glb)" = '00d69a6c127752c2506c66bc93db9a10f4a73df0'
+          test "$(git hash-object public/assets/woc-cc0/hexb_townhall.glb)" = '38c119ff5f532d2fb72c646f62925776f97096cc'
+          test "$(git hash-object public/assets/woc-cc0/hexb_workshop.glb)" = 'b330efd7a0d6764cbe0bef14f2f07050c1eec3a3'
+          test "$(git hash-object public/assets/woc-cc0/hexb_tavern.glb)" = '15eaef9024e7598d14777290c0f3b89d66b6b2da'
+          test "$(git hash-object public/assets/woc-cc0/hexb_home_a.glb)" = '7367986cfaed6c1f39731a590f1fb803118a4748'
+          test "$(git hash-object public/assets/woc-cc0/hexb_home_b.glb)" = '796ab24bb9195aab2f2828324caab99656f47390'
+          test "$(git hash-object public/assets/woc-cc0/hexb_market.glb)" = '304989ee32b8df6b365d640a5e998b943cb65653'
+          test "$(git hash-object public/assets/woc-cc0/hex_church.glb)" = '26355b7dbf575376fa432803fd75d239dd78dc2d'
+          test "$(git hash-object public/assets/woc-cc0/pine_1.glb)" = '43e0328735bcca037ac87f32c11a9b9b52cb11fa'
+          test "$(git hash-object public/assets/woc-cc0/oak_1.glb)" = 'decbef02a1a2a5904232b60b1fae8e5c2fd1e5d3'
+          test "$(git hash-object public/assets/woc-cc0/twisted_1.glb)" = 'f649826c05d7de2cf307917c073c3ed952fcc093'
+          test "$(git hash-object public/assets/woc-cc0/rock_1.glb)" = '9a89d0ed1ddaadda62938c487c3279999c370c58'
+          cp .vendor/world-of-claudecraft/CREDITS.md public/assets/woc-cc0/WOC-CREDITS.md
+          echo 'ONLY pinned CC0 world assets verified by Git blob SHA.'
       - name: Build browser entry
         run: npm run build:app
+      - name: Chrome GPU headless smoke — open the actual world
+        run: node scripts/smoke-world.mjs
       - name: Upload static build
         if: github.ref == 'refs/heads/main'
         uses: actions/upload-pages-artifact@v3
@@ -65,7 +141,7 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - id: deploy
-        name: Publish HIGHFLY F3 entry
+        name: Publish HIGHFLY native world
         uses: actions/deploy-pages@v4
       - name: Verify public entry and KayKit model URL
         env:
@@ -83,4 +159,5 @@ jobs:
           done
           grep -qi "HIGHFLY" /tmp/highfly-page.html
           curl -fsSIL --retry 8 --retry-delay 5 --retry-all-errors "${PAGE_URL}assets/kaykit/Knight.glb" >/dev/null
-          echo "PUBLIC_HIGHFLY_ENTRY_AND_KAYKIT_ASSET_OK"
+          curl -fsSIL --retry 8 --retry-delay 5 --retry-all-errors "${PAGE_URL}assets/woc-cc0/house_1.glb" >/dev/null
+          echo "PUBLIC_HIGHFLY_NATIVE_WOC_AND_CC0_ASSETS_OK"

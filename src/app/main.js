@@ -1,6 +1,6 @@
 import { makeHunter } from "../core/hunter.mjs";
 import { loadHunter, saveHunter } from "../core/hunter-save.mjs";
-import { bootWorld } from "./world.js";
+import { bootWorld } from "./world-native.js";
 
 const node=id=>document.getElementById(id);
 const screens=["landing","creator","game","loading"];
@@ -41,9 +41,12 @@ async function enter(hunter){
   try{
     game=await bootWorld(node("game-canvas"),current,{
       onState(p){ if(current){current.position=p;save();}},
-      onNotice(message){node("loading-detail").textContent=message;}
+      onNotice(message){node("loading-detail").textContent=message;},
+      onZone(name){node("zone-title").textContent=name;}
     });
     node("loading").hidden=true;
+    current.worldVersion="woc0447";current.position=game.getPosition();save();
+    window.__highflyWorldSmoke=game.getWorldSummary();
     if(!game.loadedKayKit)note("Aviso: modelo 3D KayKit no cargado; verificá los assets del despliegue.");
   }catch(err){
     node("loading").hidden=true;
@@ -86,6 +89,7 @@ node("create-btn").addEventListener("click",()=>{
 node("menu-btn").addEventListener("click",()=>{
   if(game){current.position=game.getPosition();game.stop();game=null;}
   keyboard.clear();joy={x:0,y:0};save();updateLanding();show("landing");
+
 });
 function updateInput(){
   if(!game)return;
@@ -130,6 +134,12 @@ stick.addEventListener("pointerup",releaseStick);
 stick.addEventListener("pointercancel",releaseStick);
 node("jump-btn").addEventListener("pointerdown",e=>{e.preventDefault();game?.jump()});
 node("dash-btn").addEventListener("pointerdown",e=>{e.preventDefault();game?.dash()});
+node("use-btn").addEventListener("pointerdown",e=>{
+  e.preventDefault();if(game)note(game.interact());
+});
+node("attack-btn").addEventListener("pointerdown",e=>{
+  e.preventDefault();if(game){game.attack();note("ATK: animación de prueba. El daño real requiere integrar el simulador.");}
+});
 const canvas=node("game-canvas");let lookPointer=null,last=null;
 canvas.addEventListener("pointerdown",e=>{
   if(!game)return;
@@ -145,3 +155,4 @@ function releaseLook(e){if(e.pointerId===lookPointer){lookPointer=null;last=null
 canvas.addEventListener("pointerup",releaseLook);
 canvas.addEventListener("pointercancel",releaseLook);
 updateLanding();show("landing");
+window.__highflyAppReady=true; // one-way smoke readiness marker
