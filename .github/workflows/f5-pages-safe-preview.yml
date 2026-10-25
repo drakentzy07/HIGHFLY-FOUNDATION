@@ -41,6 +41,8 @@ jobs:
           node scripts/f5-wire-native-hud.mjs upstream/world-of-claudecraft
       - name: Scope Vite and GLB/KTX loader to /HIGHFLY-FOUNDATION/f5/
         run: node scripts/f5-pages-prefix.mjs upstream/world-of-claudecraft
+      - name: Skip missing restricted art before network retries (use renderer fallback)
+        run: node scripts/f5-fast-media-fallback.mjs upstream/world-of-claudecraft
       - name: Build FULL WOC original world engine + editor
         env:
           VITE_HIGHFLY_F5_OFFLINE: '1'
