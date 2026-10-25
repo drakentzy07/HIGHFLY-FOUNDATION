@@ -53,7 +53,7 @@ async function enter(hunter){
   }
 }
 node("continue-btn").addEventListener("click",()=>{const saved=tryLoad();if(saved)enter(saved)});
-node("new-btn").addEventListener("click",()=>{node("creator-error").hidden=true;show("creator")});
+node("new-btn").addEventListener("click",()=>{if(tryLoad()&&!confirm("Crear otro cazador reemplazará la partida guardada en este dispositivo. ¿Continuar?"))return;node("creator-error").hidden=true;show("creator")});
 node("back-btn").addEventListener("click",()=>show("landing"));
 node("create-btn").addEventListener("click",()=>{
   try{
