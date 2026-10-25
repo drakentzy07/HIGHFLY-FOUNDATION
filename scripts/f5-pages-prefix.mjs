@@ -100,7 +100,7 @@ const shipPath=join(root,'src/render/transport_ship.ts');
 let shipSrc=await readFile(shipPath,'utf8');
 const shipAnchor='  if (!isTransportShipKey(placement.key)) return null;';
 if(!shipSrc.includes(shipAnchor))throw Error('F5 ferry visual entry hook changed');
-const shipGate="  if (import.meta.env.VITE_HIGHFLY_F5_LICENSED_SUBSET === '1' && !loaded.has(TRANSPORT_SHIP_MODELS[placement.key])) return null;";
+const shipGate="  if (import.meta.env.VITE_HIGHFLY_F5_LICENSED_SUBSET === '1' && placement.key === 'eastbrookFerry') return null;";
 shipSrc=shipSrc.replace(shipAnchor,shipAnchor+'\n'+shipGate);
 await writeFile(shipPath,shipSrc,'utf8');
 console.log('F5_UNLICENSED_FERRY_MODEL_SKIPPED_SAFE');
