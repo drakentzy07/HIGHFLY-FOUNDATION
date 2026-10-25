@@ -31,6 +31,7 @@ async function evalJs(expression){
   if(r.exceptionDetails)throw Error("Runtime eval: "+JSON.stringify(r.exceptionDetails).slice(0,350));
   return r.result?.value;
 }
+let passed=false;
 try{
   await waitFor(async()=>{
     const r=await fetch("http://127.0.0.1:"+PORT+"/HIGHFLY-FOUNDATION/");
@@ -86,9 +87,15 @@ try{
   if(!webgl)throw Error("Chrome smoke lacked WebGL2; native world not certified");
   console.log("HIGHFLY_F4_BROWSER_ENTER_WORLD_OK",JSON.stringify(result));
   if(fatal.length)console.log("Nonblocking exceptions:",fatal.slice(-5));
+  passed=true;
+}catch(err){
+  console.error("F4_BROWSER_SMOKE_FAILURE",err?.stack??String(err));
 }finally{
   clearTimeout(hardDeadline);
   ws?.close();
   browser?.kill("SIGKILL");
   preview.kill("SIGTERM");
+  // Vite is a child of npm; its inherited pipes may remain open even if npm
+  // exits. Exit deliberately, otherwise a GREEN smoke can hang Actions forever.
+  process.exit(passed?0:1);
 }
