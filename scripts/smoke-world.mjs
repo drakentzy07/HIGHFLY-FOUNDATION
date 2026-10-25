@@ -83,6 +83,10 @@ try{
   }
   if(!result||result.game!==false||result.loading!==true||!result.zone||result.zone==="CARGANDO ZONA")
     throw Error("F4 scene not entered: "+JSON.stringify(result)+" exceptions: "+fatal.slice(-3).join("|"));
+  const geography=await evalJs("window.__highflyWorldSmoke");
+  console.log("F4_NATIVE_WOC_CONTENT",JSON.stringify(geography));
+  if(!geography || geography.buildings<3 || geography.npcs<1 || geography.foliage<1)
+    throw Error("Original Eastbrook town missing authentic content: "+JSON.stringify(geography));
   const webgl=await evalJs("Boolean(document.querySelector('#game-canvas')?.getContext('webgl2'))");
   if(!webgl)throw Error("Chrome smoke lacked WebGL2; native world not certified");
   console.log("HIGHFLY_F4_BROWSER_ENTER_WORLD_OK",JSON.stringify(result));
