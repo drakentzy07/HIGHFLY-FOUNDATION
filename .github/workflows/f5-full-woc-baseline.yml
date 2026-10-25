@@ -51,6 +51,8 @@ jobs:
       - name: Compile the ORIGINAL app, editor, simulator and UI
         working-directory: upstream/world-of-claudecraft
         run: pnpm run build
+      - name: Audit original media footprint and fail-closed publishing status
+        run: node scripts/f5-media-inventory.mjs upstream/world-of-claudecraft
       - name: Prove full original modules compiled; do not distribute restricted media
         shell: bash
         run: |
