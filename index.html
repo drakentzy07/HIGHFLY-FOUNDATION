@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1,viewport-fit=cover,user-scalable=no"/>
+<meta name="theme-color" content="#071a18"/><meta name="description" content="HIGHFLY - Primer ingreso al mundo con Cazador universal KayKit."/>
+<title>HIGHFLY — Entrar al mundo</title>
+<link rel="stylesheet" href="/src/app/style.css"/>
+</head><body>
+<main id="app">
+<section id="landing" class="screen start-screen">
+  <div class="start-decor"></div>
+  <div class="intro">
+    <span class="eyebrow">FOUNDATION · F3 PRUEBA 3D</span>
+    <h1>HIGHFLY</h1><p class="subtitle">Tu mundo. Tu cazador. Sin clases.</p>
+    <p class="subcopy">Primer ingreso técnico. El terreno y los edificios de esta prueba son temporales: la integración del mundo de ClaudeCraft 0.44.7 sigue pendiente.</p>
+    <button id="continue-btn" class="main-btn" hidden>Continuar partida</button>
+    <button id="new-btn" class="alt-btn">Crear cazador</button>
+  </div>
+  <div class="start-footer">OFFLINE · ANDROID HORIZONTAL · KAYKIT CC0</div>
+</section>
+<section id="creator" class="screen creator-screen" hidden>
+  <div class="creator-card"><span class="eyebrow">CREACIÓN DE PERSONAJE</span>
+    <h2>Cazador universal</h2>
+    <p>No elegís clase ni especialización. Tu apariencia nunca limita tus armas ni habilidades.</p>
+    <label for="hunter-name">Nombre del cazador</label>
+    <input id="hunter-name" maxlength="24" placeholder="Escribí tu nombre" value="Hunter"/>
+    <label for="hunter-presentation">Presentación</label>
+    <select id="hunter-presentation"><option value="masculino">Masculina</option><option value="femenino">Femenina</option></select>
+    <label for="hunter-visual">Modelo KayKit</label>
+    <select id="hunter-visual">
+      <option value="kaykit_knight">Aventurero con armadura (Knight)</option>
+      <option value="kaykit_mage">Viajero arcano (Mage)</option>
+      <option value="kaykit_rogue">Explorador (Rogue)</option>
+    </select>
+    <p class="note">Estos son tres modelos visuales CC0, no clases. La presentación femenina/masculina queda guardada; aún no hay dos cuerpos base editables confirmados.</p>
+    <p id="creator-error" class="error" hidden></p>
+    <div class="creator-actions"><button id="back-btn" class="alt-btn">Volver</button><button id="create-btn" class="main-btn">Entrar al mundo</button></div>
+  </div>
+</section>
+<section id="game" class="screen game-screen" hidden>
+  <canvas id="game-canvas" aria-label="Mundo HIGHFLY en tres dimensiones"></canvas>
+  <div id="world-message" class="world-message" hidden></div>
+  <div class="top-hud"><div class="portrait">H</div>
+    <div class="player-meta"><div class="hud-line"><b id="world-name">Hunter</b><span id="world-level">Nv. 1</span></div>
+    <div class="bar"><div id="hp-fill" class="bar-fill hp"></div></div>
+    <div class="small-bars"><div class="bar"><div id="mp-fill" class="bar-fill mana"></div></div><div class="bar"><div id="energy-fill" class="bar-fill energy"></div></div></div></div>
+    <button id="menu-btn" class="menu-btn">Menú</button>
+  </div>
+  <div class="zone-name"><strong>ZONA DE INTEGRACIÓN</strong><span>Escenario 3D provisional · No es el mapa definitivo</span></div>
+  <div class="controls-hint">Izquierda: mover · Derecha: cámara · PC: WASD y ratón</div>
+  <div id="joystick" class="joystick"><div id="joystick-knob" class="joystick-knob"></div></div>
+  <div class="combat-buttons"><button id="jump-btn" class="round-btn">SALTAR</button><button id="dash-btn" class="round-btn">DASH</button></div>
+  <div class="bottom-help" id="bottom-help">Movimiento + cámara + guardado en prueba · 4 habilidades en preparación</div>
+</section>
+<section id="loading" class="screen loading-screen" hidden><div class="spinner"></div><h2>Entrando al mundo...</h2><p id="loading-detail">Cargando nuestro cazador KayKit</p></section>
+</main><script type="module" src="/src/app/main.js"></script>
+</body></html>
