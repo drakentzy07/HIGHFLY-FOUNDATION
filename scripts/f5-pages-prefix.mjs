@@ -16,4 +16,16 @@ await patch('src/render/assets/media.ts',"  return MEDIA_ASSETS[logical] ?? \`/\
 await patch('src/main.ts',
   'const offlineAvailable = isOfflineModeAvailable(import.meta.env.DEV);',
   "const offlineAvailable = isOfflineModeAvailable(import.meta.env.DEV || import.meta.env.VITE_HIGHFLY_F5_OFFLINE === '1');");
+
+// Media rights extend to SVGs embedded inside MIT TS/JS. Replace the reserved
+// maker's mark and third-party social marks with an original neutral circle;
+// don't infer that a bundled trademark SVG is MIT just because it is inline.
+const iconFile=join(root,'src/ui/ui_icons.ts');
+let iconSource=await readFile(iconFile,'utf8');
+const restricted=/(\n\s*(?:'makers-mark'|discord|twitch|kick|youtube|steam|solana|usdc):\s*\n\s*)'[^']*',/g;
+let replaced=0;
+iconSource=iconSource.replace(restricted,(_all,pre)=>{replaced++;return pre+"'"+'<circle cx="256" cy="256" r="114" fill="none" stroke="currentColor" stroke-width="42"/>'+ "',";});
+if(replaced<4)throw Error('Trademark/commissioned inline SVG patch does not match pinned WOC source');
+await writeFile(iconFile,iconSource,'utf8');
+console.log('F5_RESERVED_INLINE_BRAND_MARKS_REPLACED',replaced);
 console.log('F5_SCOPED_GITHUB_PAGES_PREFIX_READY',prefix);
