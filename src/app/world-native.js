@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { KTX2Loader } from "three/addons/loaders/KTX2Loader.js";
+import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import { VISUAL_PRESETS } from "../core/hunter.mjs";
 import { stickToWorld } from "./movement-axis.mjs";
 import { createNativeWocTerrain } from "./woc-native-layer.mjs";
@@ -171,7 +172,7 @@ export async function bootWorld(canvas,hunter,{onState,onNotice,onZone}={}){
   const ktx2=new KTX2Loader()
     .setTranscoderPath(import.meta.env.BASE_URL+"assets/basis/")
     .detectSupport(renderer);
-  const loader=new GLTFLoader().setKTX2Loader(ktx2);
+  const loader=new GLTFLoader().setKTX2Loader(ktx2).setMeshoptDecoder(MeshoptDecoder);
   onNotice?.("Preparando terreno original WOC v0.44.7");
   const native=createNativeWocTerrain(scene,{seed:SEED,start:position,
     onProgress(p){if(p.done===p.total||p.done%6===0)onNotice?.("Terreno "+p.zone+" "+p.done+"/"+p.total);}});
