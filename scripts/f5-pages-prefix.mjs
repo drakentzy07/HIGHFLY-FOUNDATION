@@ -94,4 +94,14 @@ const propReplacement=[
 props=props.replace(propAnchor,propReplacement);
 await writeFile(propPath,props,'utf8');
 console.log('F5_PROPS_PROCEDURAL_FALLBACK_READY');
+// Do not crash WOC renderer for a ferry whose owner-reserved GLB was excluded.
+// Its map route and schedule remain intact; the visual can be rebuilt separately.
+const shipPath=join(root,'src/render/transport_ship.ts');
+let shipSrc=await readFile(shipPath,'utf8');
+const shipAnchor='  if (!isTransportShipKey(placement.key)) return null;';
+if(!shipSrc.includes(shipAnchor))throw Error('F5 ferry visual entry hook changed');
+const shipGate="  if (import.meta.env.VITE_HIGHFLY_F5_LICENSED_SUBSET === '1' && !loaded.has(TRANSPORT_SHIP_MODELS[placement.key])) return null;";
+shipSrc=shipSrc.replace(shipAnchor,shipAnchor+'\n'+shipGate);
+await writeFile(shipPath,shipSrc,'utf8');
+console.log('F5_UNLICENSED_FERRY_MODEL_SKIPPED_SAFE');
 console.log('F5_SCOPED_GITHUB_PAGES_PREFIX_READY',prefix);
