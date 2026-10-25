@@ -92,6 +92,8 @@ jobs:
           echo 'ONLY pinned CC0 world assets verified by Git blob SHA.'
       - name: Build browser entry
         run: npm run build:app
+      - name: Chrome GPU headless smoke — open the actual world
+        run: node scripts/smoke-world.mjs
       - name: Upload static build
         if: github.ref == 'refs/heads/main'
         uses: actions/upload-pages-artifact@v3
