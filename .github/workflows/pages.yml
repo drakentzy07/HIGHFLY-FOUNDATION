@@ -1,4 +1,4 @@
-name: HIGHFLY F3 Web + Pages
+name: HIGHFLY F4 Real World + Pages
 on:
   push:
     branches: [main]
@@ -19,6 +19,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Checkout ONLY pinned MIT WOC 0.44.7 source code
+        uses: actions/checkout@v4
+        with:
+          repository: levy-street/world-of-claudecraft
+          ref: 493c35a108cef6c8aa290e8793107b1cd117886e
+          path: .vendor/world-of-claudecraft
+          sparse-checkout: |
+            src
+            LICENSE
+            CREDITS.md
+          sparse-checkout-cone-mode: true
+          persist-credentials: false
+      - name: Verify upstream source license and pinned version
+        run: |
+          test "$(git -C .vendor/world-of-claudecraft rev-parse HEAD)" = '493c35a108cef6c8aa290e8793107b1cd117886e'
+          grep -qi 'MIT License' .vendor/world-of-claudecraft/LICENSE
+          grep -q 'Medieval Village Pack' .vendor/world-of-claudecraft/CREDITS.md
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -41,6 +58,30 @@ jobs:
           test "$(git hash-object public/assets/kaykit/Mage.glb)" = 'c89f19f6e707f6e07e4632a08876bd6d0172b082'
           test "$(git hash-object public/assets/kaykit/Rogue.glb)" = 'c8827661105eef7b2bfbef3bc676d41a47625733'
           echo 'KayKit CC0 GLB asset hashes validated.'
+      - name: Import ONLY CC0 WOC v0.44.7 Medieval Village + Wolf models
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://raw.githubusercontent.com/levy-street/world-of-claudecraft/493c35a108cef6c8aa290e8793107b1cd117886e/public/models'
+          mkdir -p public/assets/woc-cc0
+          # Assets already used in the WOC world. CREDITS.md confirms the
+          # Quaternius Medieval Village & animated wolf models are CC0.
+          curl -fsSL --retry 4 "$base/props/house_1.glb" -o public/assets/woc-cc0/house_1.glb
+          curl -fsSL --retry 4 "$base/props/house_2.glb" -o public/assets/woc-cc0/house_2.glb
+          curl -fsSL --retry 4 "$base/props/house_3.glb" -o public/assets/woc-cc0/house_3.glb
+          curl -fsSL --retry 4 "$base/props/inn.glb" -o public/assets/woc-cc0/inn.glb
+          curl -fsSL --retry 4 "$base/props/well.glb" -o public/assets/woc-cc0/well.glb
+          curl -fsSL --retry 4 "$base/props/blacksmith.glb" -o public/assets/woc-cc0/blacksmith.glb
+          curl -fsSL --retry 4 "$base/creatures/wolf.glb" -o public/assets/woc-cc0/wolf.glb
+          test "$(git hash-object public/assets/woc-cc0/house_1.glb)" = '88f7b20a2b4376a53c6e9444910386b1a8a5f510'
+          test "$(git hash-object public/assets/woc-cc0/house_2.glb)" = 'fb45ec1b03e81dc37e133569e91a666e79d4470b'
+          test "$(git hash-object public/assets/woc-cc0/house_3.glb)" = '5cece5805e034c57a1581645e8ddf1f2962ee269'
+          test "$(git hash-object public/assets/woc-cc0/inn.glb)" = 'e65e40883afe48b6c3f4da389d73efc9acd60290'
+          test "$(git hash-object public/assets/woc-cc0/well.glb)" = 'a80bb7f20e048621195e300e58a0aebbcc83af66'
+          test "$(git hash-object public/assets/woc-cc0/blacksmith.glb)" = 'a654d0fb8cdaeca95e45a4a97086b0e072374a34'
+          test "$(git hash-object public/assets/woc-cc0/wolf.glb)" = '00d69a6c127752c2506c66bc93db9a10f4a73df0'
+          cp .vendor/world-of-claudecraft/CREDITS.md public/assets/woc-cc0/WOC-CREDITS.md
+          echo 'ONLY pinned CC0 world assets verified by Git blob SHA.'
       - name: Build browser entry
         run: npm run build:app
       - name: Upload static build
@@ -65,7 +106,7 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - id: deploy
-        name: Publish HIGHFLY F3 entry
+        name: Publish HIGHFLY native world
         uses: actions/deploy-pages@v4
       - name: Verify public entry and KayKit model URL
         env:
@@ -83,4 +124,5 @@ jobs:
           done
           grep -qi "HIGHFLY" /tmp/highfly-page.html
           curl -fsSIL --retry 8 --retry-delay 5 --retry-all-errors "${PAGE_URL}assets/kaykit/Knight.glb" >/dev/null
-          echo "PUBLIC_HIGHFLY_ENTRY_AND_KAYKIT_ASSET_OK"
+          curl -fsSIL --retry 8 --retry-delay 5 --retry-all-errors "${PAGE_URL}assets/woc-cc0/house_1.glb" >/dev/null
+          echo "PUBLIC_HIGHFLY_NATIVE_WOC_AND_CC0_ASSETS_OK"
