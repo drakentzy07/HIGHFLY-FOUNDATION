@@ -3,7 +3,7 @@
 import { BUILTIN_WORLD, ROADS, zoneAt } from "../../.vendor/world-of-claudecraft/src/sim/data.ts";
 import { nativeWorldHeight } from "./native-woc-source.mjs";
 
-const shapeKinds=new Set(["house","inn"]);
+const shapeKinds=new Set(["house","inn","chapel"]);
 export function nativeBuildingsNear(point,radius=100){
   return BUILTIN_WORLD.props.buildings.filter(b=>
     shapeKinds.has(b.kind)&&Number.isFinite(b.x)&&Number.isFinite(b.z)&&
@@ -46,3 +46,11 @@ export function nativeBuildingCollision(x,z,region=20){
 }
 export function nativeZoneLabel(point){return zoneAt(point.x,point.z).name;}
 export function nativeFloor(x,z,seed=42){return nativeWorldHeight(x,z,seed);}
+
+// An authentic WOC zone hub is the HIGHFLY first-entry settlement destination.
+// The original WOC spawn (-94,-58) is maintained in nativeWorldStart as source
+// reference; HIGHFLY chooses a walkable plaza edge in the SAME authored town.
+export function nativeHunterEntryPoint(){
+  const hub=zoneAt(-94,-58).hub;
+  return {x:hub.x-8,z:hub.z-4};
+}
