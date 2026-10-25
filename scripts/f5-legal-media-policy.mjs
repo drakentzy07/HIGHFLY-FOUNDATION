@@ -15,6 +15,7 @@ export function allowResource(logical) {
   if(/^models\/weapons\/[^/]+\.glb$/.test(path)&&safeWeapon.test(path.split('/').at(-1)))return 'CC0: KayKit character weapons/shields';
   if(/^models\/dungeon\/(?:arch|banner|bar|barrel|barrier|bed|bench|bone|book|bottle|box|bucket|candle|chair|chest|coffin|coin|column|crate|crypt|fence|floor|grave|haybale|pillar|rock|stairs|table|torch|wall)[a-zA-Z0-9_-]*\.glb$/i.test(path))return 'CC0: KayKit modular dungeon kit';
   if(/^textures\/terrain\/[^/]+$/.test(path) && /^(Ground|Grass|Rock|Snow|Gravel|Lava|PavingStones)/i.test(path.split('/').at(-1)))return 'CC0: ambientCG terrain PBR textures';
+  if(/^env\/(?:hollow_dusk|ember_storm|frost_twilight|amber_sunset|fen_day|nightbloom_dream|wraithwood_gloom)_(?:1k|2k|512)\.ktx2$/.test(path))return 'With project only: original credited WOC Realm sky KTX2/PMREM';
   if(/^env\/(?:space_galaxy)\.jpg$/.test(path))return 'CC-BY 4.0: ESO/S.Brunier attribution';
   if(/^vfx\/fel_meteor_impact\.png$/.test(path))return 'With the project only: WOC project-generated VFX';
   if(/^textures\/loading\/[^/]+\.webp$/.test(path))return 'With the project only: WOC in-game loading art';
