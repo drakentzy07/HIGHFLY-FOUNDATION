@@ -2,7 +2,8 @@ import { chromium } from 'playwright';
 const browser=await chromium.launch({headless:true,args:['--enable-webgl','--use-gl=angle','--use-angle=swiftshader','--disable-web-security']});
 const context=await browser.newContext({viewport:{width:915,height:412},isMobile:true,hasTouch:true,deviceScaleFactor:2,userAgent:'Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Mobile Safari/537.36'});
 const page=await context.newPage();
-const errors=[],responses=[];
+const errors=[],responses=[],consoleErrors=[];
+page.on('console',msg=>{if(['error','warning'].includes(msg.type())&&consoleErrors.length<25)consoleErrors.push(msg.text().slice(0,250));});
 page.on('pageerror',e=>errors.push(String(e.message).slice(0,350)));
 page.on('response',r=>{if(r.status()>=400)responses.push({status:r.status(),url:r.url().slice(0,150)});});
 const base=process.env.F5_TEST_URL||'http://127.0.0.1:8765';
@@ -32,7 +33,17 @@ try {
   status.errors.push(...errors.slice(0,8));
   status.missingMedia=responses.filter(x=>x.status===404).length;
   status.errors.push('HTTP errors: '+JSON.stringify(responses.slice(0,12)));
-  status.errors.push('Body classes: '+await page.evaluate(()=>document.body.className).catch(()=>''));
+  status.errors.push('DOM: '+JSON.stringify(await page.evaluate(()=>({
+  body:document.body.className,
+  offlineError:document.querySelector('#offline-error')?.textContent?.slice(0,240),
+  loading:document.querySelector('#loading-screen')?.textContent?.slice(0,500),
+  loadingStyle:document.querySelector('#loading-screen')?getComputedStyle(document.querySelector('#loading-screen')).display:'unknown',
+  error:document.querySelector('#error-msg')?.textContent?.slice(0,400),
+  startScreen:document.querySelector('#start-screen')?getComputedStyle(document.querySelector('#start-screen')).display:'unknown',
+  canvas:document.querySelector('#game-canvas')?{width:document.querySelector('#game-canvas').width,height:document.querySelector('#game-canvas').height}:null,
+})).catch(()=>({failed:true}))));
+status.errors.push('Browser console: '+JSON.stringify(consoleErrors.slice(0,12)));
+await page.screenshot({path:'f5-browser-failure.png',fullPage:false}).catch(()=>{});
   console.log('F5_MOBILE_BROWSER_SMOKE_FAILED',JSON.stringify(status));
   process.exitCode=1;
 } finally{await browser.close();}
