@@ -1,0 +1,34 @@
+name: WOC 0.44.7 Native World Probe
+on:
+  push:
+    branches: ["feature/f4-woc-native-terrain"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-and-bundle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout ONLY approved World of ClaudeCraft 0.44.7 MIT source
+        uses: actions/checkout@v4
+        with:
+          repository: levy-street/world-of-claudecraft
+          ref: 493c35a108cef6c8aa290e8793107b1cd117886e
+          path: .vendor/world-of-claudecraft
+          sparse-checkout: |
+            src/sim
+            LICENSE
+          sparse-checkout-cone-mode: true
+          persist-credentials: false
+      - name: Verify MIT copyright license is present
+        run: |
+          test -s .vendor/world-of-claudecraft/LICENSE
+          grep -qi 'MIT License' .vendor/world-of-claudecraft/LICENSE
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-audit --no-fund
+      - run: npm test
+      - name: Bundle WOC native world module in a separate probe
+        run: npm run build:app
