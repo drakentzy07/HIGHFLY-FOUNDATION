@@ -59,6 +59,23 @@ jobs:
           name: f5-pages-readiness-json
           path: f5-pages-plan/F5-PAGES-READINESS.json
           retention-days: 7
+      - name: Remove ONLY original-source duplicate media using upstream's tested native packager
+        working-directory: upstream/world-of-claudecraft
+        run: node scripts/build_media_manifest.mjs prune
+      - name: Verify full engine below Pages size limit WITHOUT distributing it
+        shell: bash
+        run: |
+          set -euo pipefail
+          bytes=$(du -sb upstream/world-of-claudecraft/dist | awk '{print $1}')
+          echo "F5_NATIVE_PRUNE_BYTES=$bytes"
+          echo "F5_NATIVE_PRUNE_MIB=$((bytes / 1048576))"
+          if [ "$bytes" -ge 1073741824 ]; then
+            echo 'F5_PAGES_SIZE_STILL_EXCEEDS_LIMIT'
+            exit 1
+          fi
+          test -s upstream/world-of-claudecraft/dist/index.html
+          test -s upstream/world-of-claudecraft/dist/editor.html
+          echo 'F5_FULL_WORLD_AFTER_SAFE_PRUNE_BELOW_PAGES_SIZE_CAP'
       - name: Smoke-test compiled world/editor/overlay over HTTP (no public deployment)
         shell: bash
         run: |
