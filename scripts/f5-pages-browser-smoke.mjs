@@ -17,8 +17,8 @@ try {
   await page.locator('#btn-play').evaluate(el => el.click());
   await page.locator('#offline-select').waitFor({state:'visible',timeout:30000});
   status.offline=true;
-  await page.locator('#char-name').fill('HunterF5');
-  await page.locator('#btn-start-offline').click();
+  await page.locator('#char-name').fill('Hunter');
+  await page.locator('#btn-start-offline').evaluate(el => el.click());
   try{await page.waitForFunction(()=>document.body.classList.contains('game-active'),null,{timeout:90000});status.entered=true;}catch(e){status.errors.push('Game never marked active within timeout: '+String(e).slice(0,180));}
   if(status.entered){try{await page.locator('#highfly-f5-hud').waitFor({state:'visible',timeout:15000});status.hud=true;}catch(e){status.errors.push('HUD did not appear in mobile game');}}
   status.loaded=true;
