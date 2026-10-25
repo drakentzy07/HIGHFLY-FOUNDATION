@@ -57,7 +57,14 @@ try{
   });
   await cmd("Runtime.enable");await cmd("Page.enable");
   await cmd("Page.navigate",{url:"http://127.0.0.1:"+PORT+"/HIGHFLY-FOUNDATION/"});
-  await waitFor(async()=>await evalJs("window.__highflyAppReady===true"),80,500);
+  try{
+    await waitFor(async()=>await evalJs("window.__highflyAppReady===true"),80,500);
+  }catch(err){
+    let diag=null;
+    try{diag=await evalJs("({url:location.href,ready:document.readyState,game:document.querySelector('#game')?.hidden,scriptCount:document.scripts.length})");}catch{}
+    throw Error("App bootstrap failed: "+JSON.stringify(diag)+" exceptions: "+
+      fatal.slice(-6).join(" | ")+" "+err.message);
+  }
   await evalJs("document.querySelector('#new-btn').click();document.querySelector('#create-btn').click();");
   let result=null;
   for(let i=0;i<160;i++){
