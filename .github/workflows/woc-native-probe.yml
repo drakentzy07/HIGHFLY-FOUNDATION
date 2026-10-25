@@ -17,7 +17,7 @@ jobs:
           ref: 493c35a108cef6c8aa290e8793107b1cd117886e
           path: .vendor/world-of-claudecraft
           sparse-checkout: |
-            src/sim
+            src
             LICENSE
           sparse-checkout-cone-mode: true
           persist-credentials: false
