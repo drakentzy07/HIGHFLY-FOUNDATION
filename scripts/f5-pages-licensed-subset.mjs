@@ -13,7 +13,7 @@ const manifest=new Map([...mapText.matchAll(/"([^"]+)": "(\/media\/[^"]+)"/g)].m
 if(manifest.size<300)throw Error('Upstream manifest missing assets: abort');
 const credit=await readFile(join(root,'CREDITS.md'),'utf8');
 for(const marker of ['With the project only','No, permission required','KayKit','Quaternius','Kenney'])if(!credit.includes(marker))throw Error('Upstream media license ledger changed: '+marker);
-const safeHeroes=new Set(['knight','mage','rogue','rogue_hooded','ranger','barbarian','paladin','druid','mage_classic']);
+const safeHeroes=new Set(['knight','mage','rogue','rogue_hooded','barbarian']);
 const safeMonsters=new Set(['wolf','wolf_basic','bull','fox','stag','alpaca','spider','frog','goblin','orc','yeti','demon','ghost','tribal','velociraptor']);
 const safeWeapon=/^(adv_(axe|dagger|staff|sword|wand|druid)|axe_[a-d]|dagger(?:_[a-c])?|hammer_[a-d]|staff(?:_[a-d])?|sword(?:_[a-g])?|shield_(?:round|square|badge)|skeleton_(?:axe|blade|crossbow|staff|shield_large_a)|wand(?:_[ab])?|bow|crossbow|quiver|scythe|halberd|spear_a)\.glb$/i;
 function allowResource(logical) {
@@ -22,7 +22,7 @@ function allowResource(logical) {
   if(/^models\/foliage\/(?:bush|bush_flowers|dead_[1-3]|fern|mushroom|oak_[1-5](?:_field)?|pine_[1-5](?:_field)?|rock_[1-3]|twisted_[1-3](?:_field)?)\.glb$/.test(path))return 'CC0: Quaternius stylized nature';
   if(/^models\/chars\/players\/[^/]+\.glb$/.test(path)) {
     const name=path.split('/').at(-1).slice(0,-4);
-    if(safeHeroes.has(name)||(/^(knight|mage|rogue|ranger|paladin|barbarian|druid)_(?:hit_variety_anims|ability_anims)$/.test(name)))return 'CC0: KayKit character and adapted animation rig';
+    if(safeHeroes.has(name)||(/^(knight|mage|rogue|barbarian)_(?:hit_variety_anims|ability_anims)$/.test(name)))return 'CC0: KayKit character and adapted animation rig';
   }
   if(/^models\/chars\/enemies\/skeleton_(?:warrior|mage|rogue|dagger|minion_free)\.glb$/.test(path))return 'CC0: KayKit Skeleton Character Pack';
   if(/^models\/creatures\/[^/]+\.glb$/.test(path) && safeMonsters.has(path.split('/').at(-1).replace('.glb','')))return 'CC0: Quaternius animated creature pack';
