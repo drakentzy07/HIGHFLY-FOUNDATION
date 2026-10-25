@@ -1,6 +1,6 @@
 import { makeHunter } from "../core/hunter.mjs";
 import { loadHunter, saveHunter } from "../core/hunter-save.mjs";
-import { bootWorld } from "./world.js";
+import { bootWorld } from "./world-native.js";
 
 const node=id=>document.getElementById(id);
 const screens=["landing","creator","game","loading"];
@@ -41,9 +41,11 @@ async function enter(hunter){
   try{
     game=await bootWorld(node("game-canvas"),current,{
       onState(p){ if(current){current.position=p;save();}},
-      onNotice(message){node("loading-detail").textContent=message;}
+      onNotice(message){node("loading-detail").textContent=message;},
+      onZone(name){node("zone-title").textContent=name;}
     });
     node("loading").hidden=true;
+    current.worldVersion="woc0447";current.position=game.getPosition();save();
     if(!game.loadedKayKit)note("Aviso: modelo 3D KayKit no cargado; verificá los assets del despliegue.");
   }catch(err){
     node("loading").hidden=true;
@@ -130,6 +132,12 @@ stick.addEventListener("pointerup",releaseStick);
 stick.addEventListener("pointercancel",releaseStick);
 node("jump-btn").addEventListener("pointerdown",e=>{e.preventDefault();game?.jump()});
 node("dash-btn").addEventListener("pointerdown",e=>{e.preventDefault();game?.dash()});
+node("use-btn").addEventListener("pointerdown",e=>{
+  e.preventDefault();if(game)note(game.interact());
+});
+node("attack-btn").addEventListener("pointerdown",e=>{
+  e.preventDefault();if(game){game.attack();note("ATK: animación de prueba. El daño real requiere integrar el simulador.");}
+});
 const canvas=node("game-canvas");let lookPointer=null,last=null;
 canvas.addEventListener("pointerdown",e=>{
   if(!game)return;
