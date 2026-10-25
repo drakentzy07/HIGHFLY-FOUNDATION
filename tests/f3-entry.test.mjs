@@ -40,7 +40,7 @@ test("public deployment fetches pinned and hash-verified approved KayKit GLBs",(
 test("native WOC scene is explicitly labeled authentic and incomplete",()=>{
   const html=read("index.html");
   assert.match(html,/terreno, caminos y estructuras originales permitidas/i);
-  assert.match(html,/ClaudeCraft 0\\.44\\.7/);
+  assert.ok(html.includes("ClaudeCraft 0.44.7"));
   assert.match(read("src/app/world-native.js"),/createNativeWocTerrain/);
   assert.match(read("docs/F4-RESTORE-WOC-WORLD.md"),/mundo original/i);
 });
