@@ -1,11 +1,15 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
-  makeHunter, setVisual, equip, train, grantXp, setLoadout,
+  makeHunter, setVisual, equip, train, grantXp, learn, setLoadout,
   setFacing, setMotion, useSkill, basicAttack, selectTarget, MAX_LEVEL
 } from "../src/core/hunter.mjs";
 import { SKILLS } from "../src/core/skills.mjs";
-const hunter = () => makeHunter({ id: "tester", name: "Cazador" });
+const hunter = () => { const h=makeHunter({ id: "tester", name: "Cazador" });
+  for(const id of ["arc_bolt","blade_arc","surge_dash","nova_ring"])learn(h,id);
+  setLoadout(h,["arc_bolt","blade_arc","surge_dash","nova_ring"]);
+  return h;
+};
 
 test("no class, class skills or talent tree fields", () => {
   const h = hunter();
