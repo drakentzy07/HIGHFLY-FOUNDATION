@@ -1,0 +1,16 @@
+{
+  "name": "HIGHFLY — Cazador Universal",
+  "short_name": "HIGHFLY",
+  "description": "HIGHFLY RPG offline, personaje sin clases.",
+  "lang": "es",
+  "start_url": "/HIGHFLY-FOUNDATION/",
+  "scope": "/HIGHFLY-FOUNDATION/",
+  "display": "fullscreen",
+  "display_override": [
+    "fullscreen",
+    "standalone"
+  ],
+  "orientation": "landscape",
+  "background_color": "#071a18",
+  "theme_color": "#071a18"
+}
