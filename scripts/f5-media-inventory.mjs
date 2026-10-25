@@ -40,11 +40,11 @@ console.log("F5_PUBLISH_ELIGIBILITY=NO: exact-file provenance and restricted-ass
 
 const credits=readFileSync(join(base,"CREDITS.md"),"utf8");
 const categories=new Map();
-for(const line of credits.split(/\\r?\\n/)){
-  if(!line.startsWith("|")||/^\\|\\s*[-|: ]+\\|/.test(line))continue;
+for(const line of credits.split(/\r?\n/)){
+  if(!line.startsWith("|")||/^\|\s*[-|: ]+\|/.test(line))continue;
   const cells=line.split("|").slice(1,-1).map(c=>c.trim());
   if(cells.length<5)continue;
-  const val=cells.at(-1).replace(/\\*\\*/g,"").trim();
+  const val=cells.at(-1).replace(/\*\*/g,"").trim();
   if(!["Yes","Yes, attribution required","Yes, under SIL OFL 1.1",
     "With the project only","No, permission required",
     "Non-commercial only, with attribution"].includes(val))continue;
