@@ -1,0 +1,85 @@
+name: F5 Pages legal-world preview gate (no deploy until QA)
+on:
+  push:
+    branches: [experiment/f5-pages-safe-preview]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  f5-safe-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+      PUPPETEER_SKIP_DOWNLOAD: '1'
+      CI: 'true'
+    steps:
+      - name: Checkout HIGHFLY F5 scripts
+        uses: actions/checkout@v4
+      - name: Checkout pinned WOC full engine
+        uses: actions/checkout@v4
+        with:
+          repository: levy-street/world-of-claudecraft
+          ref: 493c35a108cef6c8aa290e8793107b1cd117886e
+          path: upstream/world-of-claudecraft
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install original WOC dependencies
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.34.5 --activate
+          cd upstream/world-of-claudecraft
+          pnpm install --frozen-lockfile
+      - name: Wire HIGHFLY experimental native HUD and original world launch
+        run: |
+          node scripts/f5-install-local-launcher.mjs upstream/world-of-claudecraft
+          node scripts/f5-wire-native-hud.mjs upstream/world-of-claudecraft
+      - name: Build FULL WOC original world engine + editor
+        run: |
+          cd upstream/world-of-claudecraft
+          pnpm run build
+          node scripts/build_media_manifest.mjs prune
+      - name: Copy exclusively confirmed-permission media and code to release review
+        run: node scripts/f5-pages-licensed-subset.mjs upstream/world-of-claudecraft f5-public-review
+      - name: Protect Pages bundle size and attribution
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s f5-public-review/index.html
+          test -s f5-public-review/editor.html
+          test -s f5-public-review/CREDITS.md
+          test -s f5-public-review/LICENSE
+          test -s f5-public-review/HIGHFLY_F5_RELEASE_SCOPE.json
+          bytes=$(du -sb f5-public-review | awk '{print $1}')
+          echo "F5_SAFE_PAGES_MIB=$((bytes/1048576))"
+          test "$bytes" -lt 1073741824
+          ! find f5-public-review -type f -name '*.apk' | grep .
+          ! find f5-public-review -type f -path '*/ui/skills/*' | grep .
+          echo F5_LICENSED_MEDIA_SCOPE_GATE_GREEN
+      - name: Install Chromium for genuine touch emulation
+        working-directory: upstream/world-of-claudecraft
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Browser smoke full world + mobile HUD, then editor
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m http.server 8765 --bind 127.0.0.1 --directory f5-public-review >/tmp/highfly-f5-pages-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          cp scripts/f5-pages-browser-smoke.mjs upstream/world-of-claudecraft/f5-pages-browser-smoke.mjs
+          cd upstream/world-of-claudecraft
+          node f5-pages-browser-smoke.mjs
+          curl -fsSL http://127.0.0.1:8765/editor.html -o /tmp/highfly-f5-editor
+          grep -qi '<html' /tmp/highfly-f5-editor
+          echo F5_PAGES_LICENCED_SUBSET_BROWSER_GREEN
+      - name: Report metadata only, never upload build before review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f5-pages-license-scope-json
+          path: f5-public-review/HIGHFLY_F5_RELEASE_SCOPE.json
+          if-no-files-found: ignore
+          retention-days: 7
