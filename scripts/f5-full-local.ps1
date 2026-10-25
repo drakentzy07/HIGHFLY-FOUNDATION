@@ -44,6 +44,8 @@ try {
 } finally { Pop-Location }
 & node (Join-Path $here "f5-install-local-launcher.mjs") $checkout
 if ($LASTEXITCODE -ne 0) { throw "No se pudo crear el lanzador local." }
+& node (Join-Path $here "f5-wire-native-hud.mjs") $checkout
+if ($LASTEXITCODE -ne 0) { throw "No se pudo integrar el HUD de prueba en el motor original." }
 Write-Host ""
 Write-Host "F5 ORIGINAL + editor disponibles EN ESTA COMPUTADORA:" -ForegroundColor Green
 Write-Host "PC: http://localhost:5173/highfly-f5-local.html"
