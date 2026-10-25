@@ -75,6 +75,13 @@ jobs:
           curl -fsSL --retry 4 "$base/props/well.glb" -o public/assets/woc-cc0/well.glb
           curl -fsSL --retry 4 "$base/props/blacksmith.glb" -o public/assets/woc-cc0/blacksmith.glb
           curl -fsSL --retry 4 "$base/creatures/wolf.glb" -o public/assets/woc-cc0/wolf.glb
+          curl -fsSL --retry 4 "$base/biome/hexb_townhall.glb" -o public/assets/woc-cc0/hexb_townhall.glb
+          curl -fsSL --retry 4 "$base/biome/hexb_workshop.glb" -o public/assets/woc-cc0/hexb_workshop.glb
+          curl -fsSL --retry 4 "$base/biome/hexb_tavern.glb" -o public/assets/woc-cc0/hexb_tavern.glb
+          curl -fsSL --retry 4 "$base/biome/hexb_home_a.glb" -o public/assets/woc-cc0/hexb_home_a.glb
+          curl -fsSL --retry 4 "$base/biome/hexb_home_b.glb" -o public/assets/woc-cc0/hexb_home_b.glb
+          curl -fsSL --retry 4 "$base/biome/hexb_market.glb" -o public/assets/woc-cc0/hexb_market.glb
+          curl -fsSL --retry 4 "$base/biome/hex_church.glb" -o public/assets/woc-cc0/hex_church.glb
           curl -fsSL --retry 4 "$base/foliage/pine_1.glb" -o public/assets/woc-cc0/pine_1.glb
           curl -fsSL --retry 4 "$base/foliage/oak_1.glb" -o public/assets/woc-cc0/oak_1.glb
           curl -fsSL --retry 4 "$base/foliage/twisted_1.glb" -o public/assets/woc-cc0/twisted_1.glb
@@ -86,6 +93,13 @@ jobs:
           test "$(git hash-object public/assets/woc-cc0/well.glb)" = 'a80bb7f20e048621195e300e58a0aebbcc83af66'
           test "$(git hash-object public/assets/woc-cc0/blacksmith.glb)" = 'a654d0fb8cdaeca95e45a4a97086b0e072374a34'
           test "$(git hash-object public/assets/woc-cc0/wolf.glb)" = '00d69a6c127752c2506c66bc93db9a10f4a73df0'
+          test "$(git hash-object public/assets/woc-cc0/hexb_townhall.glb)" = '38c119ff5f532d2fb72c646f62925776f97096cc'
+          test "$(git hash-object public/assets/woc-cc0/hexb_workshop.glb)" = 'b330efd7a0d6764cbe0bef14f2f07050c1eec3a3'
+          test "$(git hash-object public/assets/woc-cc0/hexb_tavern.glb)" = '15eaef9024e7598d14777290c0f3b89d66b6b2da'
+          test "$(git hash-object public/assets/woc-cc0/hexb_home_a.glb)" = '7367986cfaed6c1f39731a590f1fb803118a4748'
+          test "$(git hash-object public/assets/woc-cc0/hexb_home_b.glb)" = '796ab24bb9195aab2f2828324caab99656f47390'
+          test "$(git hash-object public/assets/woc-cc0/hexb_market.glb)" = '304989ee32b8df6b365d640a5e998b943cb65653'
+          test "$(git hash-object public/assets/woc-cc0/hex_church.glb)" = '26355b7dbf575376fa432803fd75d239dd78dc2d'
           test "$(git hash-object public/assets/woc-cc0/pine_1.glb)" = '43e0328735bcca037ac87f32c11a9b9b52cb11fa'
           test "$(git hash-object public/assets/woc-cc0/oak_1.glb)" = 'decbef02a1a2a5904232b60b1fae8e5c2fd1e5d3'
           test "$(git hash-object public/assets/woc-cc0/twisted_1.glb)" = 'f649826c05d7de2cf307917c073c3ed952fcc093'
