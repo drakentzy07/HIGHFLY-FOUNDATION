@@ -1,11 +1,14 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { makeHunter } from "../src/core/hunter.mjs";
+import { makeHunter, learn, setLoadout } from "../src/core/hunter.mjs";
 import { collectEnemies, castIntent, attackIntent, assertClassless } from "../src/bridge/world0447.mjs";
 import { createFuryInput, cameraRelativeStick } from "../src/core/fury-input.mjs";
 import { validateHunterSave, saveHunter, loadHunter, deleteHunter, memoryStorage } from "../src/core/hunter-save.mjs";
 
-const mk=()=>makeHunter({id:"save-slot-1",name:"Hunter"});
+const mk=()=>{const h=makeHunter({id:"save-slot-1",name:"Hunter"});
+  for(const id of ["arc_bolt","blade_arc","surge_dash","nova_ring"])learn(h,id);
+  setLoadout(h,["arc_bolt","blade_arc","surge_dash","nova_ring"]);
+  return h;};
 function world(){
   const player={id:1,kind:"player",pos:{x:100,z:200},hp:200,dead:false};
   const wolf={id:2,kind:"mob",pos:{x:100,z:205},hp:80,dead:false};
