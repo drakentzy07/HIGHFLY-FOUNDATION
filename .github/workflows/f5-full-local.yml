@@ -1,7 +1,7 @@
 name: F5 FULL local WOC world + editor (no publication)
 on:
   push:
-    branches: [experiment/f5-full-local-world]
+    branches: [experiment/f5-full-local-world, experiment/f5-integrated-world-hud]
   workflow_dispatch:
 permissions:
   contents: read
