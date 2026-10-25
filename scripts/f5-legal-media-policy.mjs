@@ -5,7 +5,8 @@ const safeWeapon=/^(adv_(axe|dagger|staff|sword|wand|druid)|axe_[a-d]|dagger(?:_
 const cc0WocProps = new Set(["anvil.glb","barrel.glb","bell_tower.glb","blacksmith.glb","bonfire.glb","cart.glb","column.glb","column_broken.glb","crate_wooden.glb","dock_platform.glb","farmcrate_apple.glb","fence.glb","gravestone_bevel.glb","gravestone_cross.glb","gravestone_decorative.glb","gravestone_round.glb","house_1.glb","house_2.glb","house_3.glb","inn.glb","kmed_blacksmith_hollow.glb","kmed_church_hollow.glb","kmed_home_A_hollow.glb","kmed_home_B_hollow.glb","kmed_market_hollow.glb","kmed_tavern_hollow.glb","lantern_wall.glb","market_stand_1.glb","market_stand_2.glb","mushroom_red.glb","mushroom_tan.glb","ore_rocks.glb","reeds.glb","rock_large_d.glb","rock_large_f.glb","rock_tall_a.glb","rock_tall_h.glb","rowboat.glb","statue_block.glb","statue_head.glb","tent_open.glb","tent_small.glb","timber_pillar.glb","weapon_stand.glb","well.glb"]);
 export function allowResource(logical) {
   const path=logical.replaceAll('\\','/');
-  if(path.startsWith('models/props/')&&cc0WocProps.has(path.slice('models/props/'.length)))return 'CC0: explicitly traced KayKit/Quaternius/Kenney/loafbrr original source pack (WOC props registry)';
+  if(path==='models/props/reeds.glb')return 'With the project only: WOC credited Tripo project vegetation';
+  if(path.startsWith('models/props/')&&cc0WocProps.has(path.slice('models/props/'.length)))return 'Credited CC0 source packs for base village/nature props; WOC-derived assets only as part of fork';
 
   if(/^models\/biome\/(beach_|camp_|cave_|city_|desert_|dungeon_|hex_|hexb_|hexn_|hexr_|kcas_|sea_)[a-zA-Z0-9_-]+\.glb$/.test(path))return 'CC0: Kenney/Quaternius/KayKit/loafbrr named model kit (CREDITS)';
   if(/^models\/foliage\/(?:bush|bush_flowers|dead_[1-3]|fern|mushroom|oak_[1-5](?:_field)?|pine_[1-5](?:_field)?|rock_[1-3]|twisted_[1-3](?:_field)?)\.glb$/.test(path))return 'CC0: Quaternius stylized nature';
