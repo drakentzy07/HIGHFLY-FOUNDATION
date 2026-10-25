@@ -8,6 +8,10 @@ const preview=spawn("npm",["run","preview:app","--","--host","127.0.0.1","--port
 let browser=null,ws=null;
 let commandId=0,answers=new Map(),fatal=[];
 let previewOutput="";
+const hardDeadline=setTimeout(()=>{
+  console.error("F4_BROWSER_HARD_TIMEOUT",JSON.stringify({fatal:fatal.slice(-6),previewOutput:previewOutput.slice(-400)}));
+  browser?.kill("SIGKILL");preview.kill("SIGTERM");process.exit(1);
+},95000);
 preview.stdout.on("data",d=>previewOutput+=String(d));
 preview.stderr.on("data",d=>previewOutput+=String(d));
 async function waitFor(get,tries=40,ms=400){
@@ -32,6 +36,7 @@ try{
     const r=await fetch("http://127.0.0.1:"+PORT+"/HIGHFLY-FOUNDATION/");
     return r.ok;
   },30,500);
+  console.log("F4_SMOKE_PREVIEW_UP");
   browser=spawn(process.env.CHROME_BIN||"google-chrome",[
     "--headless=new","--no-sandbox","--disable-dev-shm-usage",
     "--enable-webgl","--use-gl=angle","--use-angle=swiftshader",
@@ -44,6 +49,7 @@ try{
     const data=await r.json();
     return data.find(x=>x.type==="page"&&x.webSocketDebuggerUrl);
   },55,500);
+  console.log("F4_SMOKE_CHROME_CDP_READY");
   ws=new WebSocket(tabs.webSocketDebuggerUrl);
   await new Promise((resolve,reject)=>{
     ws.addEventListener("open",resolve,{once:true});
@@ -65,7 +71,9 @@ try{
     throw Error("App bootstrap failed: "+JSON.stringify(diag)+" exceptions: "+
       fatal.slice(-6).join(" | ")+" "+err.message);
   }
+  console.log("F4_SMOKE_APP_BOOTSTRAPPED");
   await evalJs("document.querySelector('#new-btn').click();document.querySelector('#create-btn').click();");
+  console.log("F4_SMOKE_ENTER_TAPPED");
   let result=null;
   for(let i=0;i<160;i++){
     result=await evalJs("(()=>({landing:document.querySelector('#landing').hidden,game:document.querySelector('#game').hidden,loading:document.querySelector('#loading').hidden,zone:document.querySelector('#zone-title')?.textContent,description:document.querySelector('#loading-detail')?.textContent}))()");
@@ -79,6 +87,7 @@ try{
   console.log("HIGHFLY_F4_BROWSER_ENTER_WORLD_OK",JSON.stringify(result));
   if(fatal.length)console.log("Nonblocking exceptions:",fatal.slice(-5));
 }finally{
+  clearTimeout(hardDeadline);
   ws?.close();
   browser?.kill("SIGKILL");
   preview.kill("SIGTERM");
