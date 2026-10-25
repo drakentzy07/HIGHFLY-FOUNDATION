@@ -1,6 +1,6 @@
 import { chromium } from 'playwright';
 const browser=await chromium.launch({headless:true,args:['--enable-webgl','--use-gl=angle','--use-angle=swiftshader','--disable-web-security']});
-const context=await browser.newContext({viewport:{width:915,height:412},isMobile:true,hasTouch:true,deviceScaleFactor:2});
+const context=await browser.newContext({viewport:{width:915,height:412},isMobile:true,hasTouch:true,deviceScaleFactor:2,userAgent:'Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Mobile Safari/537.36'});
 const page=await context.newPage();
 const errors=[],responses=[];
 page.on('pageerror',e=>errors.push(String(e.message).slice(0,350)));
@@ -15,7 +15,7 @@ try {
   status.offline=true;
   await page.locator('#char-name').fill('HunterF5');
   await page.locator('#btn-start-offline').click();
-  try{await page.waitForFunction(()=>document.body.classList.contains('game-active'),{timeout:90000});status.entered=true;}catch(e){status.errors.push('Game never marked active within timeout: '+String(e).slice(0,180));}
+  try{await page.waitForFunction(()=>document.body.classList.contains('game-active'),null,{timeout:90000});status.entered=true;}catch(e){status.errors.push('Game never marked active within timeout: '+String(e).slice(0,180));}
   if(status.entered){try{await page.locator('#highfly-f5-hud').waitFor({state:'visible',timeout:15000});status.hud=true;}catch(e){status.errors.push('HUD did not appear in mobile game');}}
   status.loaded=true;
   status.errorCount=errors.length;
