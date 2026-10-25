@@ -59,6 +59,24 @@ jobs:
           name: f5-pages-readiness-json
           path: f5-pages-plan/F5-PAGES-READINESS.json
           retention-days: 7
+      - name: Smoke-test compiled world/editor/overlay over HTTP (no public deployment)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m http.server 8765 --bind 127.0.0.1 --directory upstream/world-of-claudecraft/dist > /tmp/highfly-f5-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          for x in $(seq 1 15); do
+            if curl --fail --silent http://127.0.0.1:8765/highfly-f5-local.html -o /tmp/hf5entry; then break; fi
+            sleep 1
+          done
+          grep -q 'HIGHFLY FOUNDATION' /tmp/hf5entry
+          curl -fsS http://127.0.0.1:8765/index.html -o /tmp/hf5main
+          curl -fsS http://127.0.0.1:8765/editor.html -o /tmp/hf5editor
+          test -s /tmp/hf5main
+          test -s /tmp/hf5editor
+          grep -Rlq 'highfly-f5-hud' upstream/world-of-claudecraft/dist/assets
+          echo 'F5_HTTP_SMOKE_GREEN_WORLD_EDITOR_NATIVE_HUD'
       - name: Verify local launcher, editor and original world compiled
         shell: bash
         run: |
