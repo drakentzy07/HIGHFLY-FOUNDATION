@@ -7,7 +7,7 @@ import { renderAuthenticFoliage } from "./woc-authored-foliage.mjs";
 import { initGfxTier } from "../../.vendor/world-of-claudecraft/src/render/gfx.ts";
 import { nativeWorldHeight,nativeWorldStart,nativeWaterLevelAt } from "./native-woc-source.mjs";
 import {nativeBuildingsNear,nativeWellsNear,nativeNpcsNear,nativeCampsNear,
-  nativeRoadSegmentsNear,nativeBuildingCollision,nativeZoneLabel} from "./woc-authored-content.mjs";
+  nativeRoadSegmentsNear,nativeBuildingCollision,nativeZoneLabel,nativeHunterEntryPoint} from "./woc-authored-content.mjs";
 
 // NATIVE WOC 0.44.7 geographic content, filtered CC0 buildings and KayKit avatars.
 // Not the complete original sim: NPC dialogue is read-only and combat is visual only.
@@ -73,8 +73,14 @@ async function loadAuthoredProps(scene,start,loader,notice){
   const buildings=nativeBuildingsNear(start,95).slice(0,90);
   let done=0;
   for(const b of buildings){
-    const variant=b.kind==="inn"?"inn.glb":
-      ["house_1.glb","house_2.glb","house_3.glb"][Math.abs(Math.floor(b.x*7+b.z*11))%3];
+    const assetName=b.assetId?.split("/").at(-1)??null;
+    const officialEastbrook=new Set(["hexb_townhall.glb","hexb_workshop.glb","hexb_tavern.glb",
+      "hexb_home_a.glb","hexb_home_b.glb","hexb_market.glb","hex_church.glb"]);
+    // Use EXACT original author-assigned models, not a generic replacement.
+    // An unapproved custom assetId is excluded until independently licensed.
+    if(assetName&&!officialEastbrook.has(assetName))continue;
+    const variant=assetName??(b.kind==="inn"?"inn.glb":
+      ["house_1.glb","house_2.glb","house_3.glb"][Math.abs(Math.floor(b.x*7+b.z*11))%3]);
     let src;
     try{src=await asset(variant);}catch(e){console.warn("WOC CC0 model missing",variant,e);continue;}
     const model=src.clone(true),outer=new THREE.Group(),measure=estimateRigHeight(model);
@@ -156,7 +162,7 @@ export async function bootWorld(canvas,hunter,{onState,onNotice,onZone}={}){
   const camera=new THREE.PerspectiveCamera(60,2,.1,205);
   // F3 saves must not carry their fake world coordinates into authentic WOC.
   const previous=hunter.worldVersion==="woc0447"&&Number.isFinite(hunter.position?.x)&&Number.isFinite(hunter.position?.z)
-    ? hunter.position : nativeWorldStart;
+    ? hunter.position : nativeHunterEntryPoint();
   const position={x:previous.x,z:previous.z};
   const loader=new GLTFLoader();
   onNotice?.("Preparando terreno original WOC v0.44.7");
