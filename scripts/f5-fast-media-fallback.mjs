@@ -20,7 +20,18 @@ const declaration=[
   "  const logical=url.replace(/^\\/+/, '');",
   "  if(!/^(models|textures|env|vfx)\\//.test(logical))return false;",
   '  return !f5MediaAllowed.has(logical);',
-  '}',
+  '}',,
+  'function f5ProceduralGltf(url:string):GLTF {',,
+  "  const group=new THREE.Group();",,
+  "  group.name='HIGHFLY_F5_ORIGINAL_GEOMETRY_ONLY';",,
+  "  const mesh=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshStandardMaterial({color:0x84765d,roughness:1}));",,
+  "  mesh.name='RIGHTS_SAFE_PLACEHOLDER';",,
+  "  const n=mesh.geometry.getAttribute('position').count;",,
+  "  const c=new Float32Array(n*3); c.fill(1);",,
+  "  mesh.geometry.setAttribute('color',new THREE.BufferAttribute(c,3));",,
+  "  const lod=new THREE.Group();lod.name='LOD0';lod.add(mesh);group.add(lod);",,
+  "  return {scene:group,scenes:[group],animations:[],cameras:[],asset:{version:'2.0'},userData:{}} as unknown as GLTF;",,
+  '}',,
   ''
 ].join('\n');
 const anchor="let gltfLoader: GLTFLoader | null = null;";
@@ -30,7 +41,10 @@ for(const method of ['loadGltf','loadTexture','loadKtx2Texture']) {
   const start=s.indexOf('export function '+method+'(');
   const at=s.indexOf('  const resolved = assetUrl(url);',start);
   if(start<0||at<0||at-start>800)throw Error('Expected WOC media-loading function not found: '+method);
-  s=s.slice(0,at)+"  if(f5ShouldSkip(url))return Promise.reject(new Error('asset load failed: '+url+' (media excluded from permitted preview)'));\n"+s.slice(at);
+  const guard=method==='loadGltf'
+    ? "  if(f5ShouldSkip(url)){const logical=url.replace(/^\\/+/, '');if(/^(models\\/chars\\/|models\\/creatures\\/)/.test(logical))return Promise.reject(new Error('asset load failed: '+url+' (restricted character rig)'));return Promise.resolve(f5ProceduralGltf(url));}\n"
+    : "  if(f5ShouldSkip(url))return Promise.reject(new Error('asset load failed: '+url+' (media excluded from permitted preview)'));\n";
+  s=s.slice(0,at)+guard+s.slice(at);
 }
 await writeFile(file,s,'utf8');
 console.log('F5_WOC_MEDIA_PRELOAD_SHORTCIRCUIT',JSON.stringify({manifestEntries:names.length,allowed:allowed.length,blocked:names.length-allowed.length}));
