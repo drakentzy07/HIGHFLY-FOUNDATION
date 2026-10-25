@@ -42,5 +42,5 @@ test("temporary world clearly identified; no WOC licensed media silently importe
   assert.match(html,/provisional/i);
   assert.match(html,/ClaudeCraft 0\.44\.7/);
   const doc=read("docs/F3-ENTRY-WORLD.md");
-  assert.match(doc,/NO es todavía el mapa original/);
+  assert.match(doc,/no es todavía el mapa original/i);
 });
