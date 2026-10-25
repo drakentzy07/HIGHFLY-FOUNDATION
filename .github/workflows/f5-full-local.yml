@@ -51,6 +51,14 @@ jobs:
       - name: Compile full original world and editor with local launch page
         working-directory: upstream/world-of-claudecraft
         run: pnpm run build
+      - name: Audit Pages size and licenses (metadata only, blocked by default)
+        run: node scripts/f5-pages-plan.mjs upstream/world-of-claudecraft f5-pages-plan
+      - name: Save JSON feasibility report, never original assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: f5-pages-readiness-json
+          path: f5-pages-plan/F5-PAGES-READINESS.json
+          retention-days: 7
       - name: Verify local launcher, editor and original world compiled
         shell: bash
         run: |
