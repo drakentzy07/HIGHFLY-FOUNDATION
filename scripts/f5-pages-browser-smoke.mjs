@@ -20,6 +20,9 @@ try {
   status.offline=true;
   await page.locator('#char-name').fill('Hunter');
   await page.locator('#btn-start-offline').evaluate(el => el.click());
+  // WOC intentionally waits for a second mobile user gesture to confirm fullscreen/landscape.
+  await page.locator('#mobile-preflight-continue').waitFor({state:'visible',timeout:20000});
+  await page.locator('#mobile-preflight-continue').evaluate(el=>el.click());
   try{await page.waitForFunction(()=>document.body.classList.contains('game-active'),null,{timeout:90000});status.entered=true;}catch(e){status.errors.push('Game never marked active within timeout: '+String(e).slice(0,180));}
   if(status.entered){try{await page.locator('#highfly-f5-hud').waitFor({state:'visible',timeout:15000});status.hud=true;}catch(e){status.errors.push('HUD did not appear in mobile game');}}
   status.loaded=true;
