@@ -1,0 +1,75 @@
+name: F5 — ClaudeCraft v0.44.7 original FULL baseline (no publication)
+on:
+  push:
+    branches: [experiment/f5-full-woc-baseline]
+  workflow_dispatch:
+permissions:
+  contents: read
+
+jobs:
+  full-upstream-build:
+    name: Compile entire original engine and content
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    env:
+      ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+      PUPPETEER_SKIP_DOWNLOAD: '1'
+      CI: 'true'
+    steps:
+      - name: Checkout HIGHFLY workspace metadata only
+        uses: actions/checkout@v4
+      - name: Checkout COMPLETE exact World of ClaudeCraft v0.44.7 source
+        uses: actions/checkout@v4
+        with:
+          repository: levy-street/world-of-claudecraft
+          ref: 493c35a108cef6c8aa290e8793107b1cd117886e
+          path: upstream/world-of-claudecraft
+          persist-credentials: false
+      - name: Verify original commit, lockfile and MIT notices
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C upstream/world-of-claudecraft rev-parse HEAD)" = '493c35a108cef6c8aa290e8793107b1cd117886e'
+          grep -qi 'MIT License' upstream/world-of-claudecraft/LICENSE
+          test -s upstream/world-of-claudecraft/CREDITS.md
+          test -s upstream/world-of-claudecraft/pnpm-lock.yaml
+          test -s upstream/world-of-claudecraft/src/sim/world.ts
+          test -s upstream/world-of-claudecraft/src/render/terrain.ts
+          echo 'F5_SOURCE_WOC_0447_PINNED_FULL_OK'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Activate upstream pinned pnpm 10.34.5
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.34.5 --activate
+          pnpm --version
+      - name: Install COMPLETE upstream dependencies
+        working-directory: upstream/world-of-claudecraft
+        run: pnpm install --frozen-lockfile --ignore-scripts=false
+      - name: Compile the ORIGINAL app, editor, simulator and UI
+        working-directory: upstream/world-of-claudecraft
+        run: pnpm run build
+      - name: Audit original media footprint and fail-closed publishing status
+        run: node scripts/f5-media-inventory.mjs upstream/world-of-claudecraft
+      - name: Generate per-file SHA256 provenance metadata (NO media binaries)
+        run: node scripts/f5-asset-hashes.mjs upstream/world-of-claudecraft f5-audit-metadata
+      - name: Archive only JSON metadata, never the original build or media
+        uses: actions/upload-artifact@v4
+        with:
+          name: f5-provenance-metadata
+          path: f5-audit-metadata/*.json
+          retention-days: 7
+          if-no-files-found: error
+      - name: Prove full original modules compiled; do not distribute restricted media
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd upstream/world-of-claudecraft
+          test -s dist/index.html
+          printf 'F5_FULL_WOC_DIST_FILES=%s\n' "$(find dist -type f | wc -l)"
+          printf 'F5_PUBLIC_MEDIA_ENTRIES=%s\n' "$(find public -type f | wc -l)"
+          printf 'F5_BUILD_TOTAL_BYTES=%s\n' "$(du -sb dist | awk '{print $1}')"
+          echo 'F5_FULL_UPSTREAM_COMPILE_OK_BUT_NOT_LICENSE_CLEAN'
+          echo 'SAFETY: JSON metadata ONLY; no binary artifact, Pages deploy or copy back to HIGHFLY repository.'
