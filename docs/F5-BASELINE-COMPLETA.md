@@ -27,6 +27,31 @@ Fuente inmutable aprobada:
 7. **F5-06 ANDROID:** CI de producción, Pages y pruebas de usuario en S23 Ultra. No se califica GREEN real hasta que el usuario confirme visual, cámara, controles y guardado.
 
 
+## Auditoría completada en GitHub Actions
+
+**Fuente**: ejecución [F5 inventario GREEN](https://github.com/drakentzy07/HIGHFLY-FOUNDATION/actions/runs/40228175798); la salida se audita sobre el proyecto completo en un runner efímero y NO se publica.
+
+| Métrica | Resultado |
+|---|---:|
+| Archivos \`public/\` original | 6.443 |
+| Tamaño \`public/\` original | 798,5 MiB |
+| Archivos compilados \`dist/\` | 8.533 |
+| Tamaño compilado \`dist/\` | 1.374,4 MiB |
+| GLB de origen | 1.465, 210,8 MiB |
+| GLB finales | 2.930, 421,6 MiB |
+| HDR de origen | 30, 148,4 MiB |
+| HDR finales | 60, 296,8 MiB |
+| Audio MP3 de origen | 1.340, 223,7 MiB |
+
+El doble recuento de archivos GLB y HDR en \`dist\` **sugiere duplicación de entrega** entre \`media/\` y las rutas públicas originales. Se debe analizar el cargador/manifest antes de eliminar duplicados: pueden coexistir referencias en ambos formatos.
+
+**Categorías registradas en \`CREDITS.md\` (FILAS de medios, no archivos individuales):** 36 \`Yes\`, 3 \`Yes, attribution required\`, 1 SIL OFL, **137 \`With the project only\` utilizables en un fork genuino**, 69 \`No, permission required\`, 9 \`Non-commercial only, with attribution\`.
+
+Estos 255 registros **NO clasifican automáticamente los 6.443 archivos**. Hace falta trazar cada binario hasta su procedencia; cualquier medio no documentado queda fuera hasta verificar sus derechos.
+
+**Prioridad de reducción sin perder mundo:** mantener todo el código original; evaluar entrega duplicada, recursos de marketing/no usados, voces/música no necesarias en la primera carga y asset pools legalmente válidos. No quitar el render/editor/sim para ahorrar megas ni asumir que todo el paquete de \`dist\` está autorizado.
+
+
 ## Hallazgo clave en CREDITS.md (F5)
 
 El archivo de licencia de WOC **distingue claramente** los recursos “With the project only” de los “No, permission required”. Los primeros **sí pueden incluirse y distribuirse como parte de World of ClaudeCraft o de un fork genuino**, pero no como catálogo de assets por separado. Los segundos deben eliminarse, sustituirse o contar con autorización escrita. Los CC BY-NC solo son aptos para usos no comerciales con atribución; la concesión comercial concedida al original no se transmite automáticamente. Logos comerciales, autorías y marcas de terceros no quedan licenciados por MIT.
